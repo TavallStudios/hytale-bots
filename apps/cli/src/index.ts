@@ -2,6 +2,7 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import type { BotQuicOptions } from "@hyrhythm/hytale-client";
 import { CONNECT_LANGUAGE_MAX_BYTES, CONNECT_USERNAME_MAX_BYTES } from "@hyrhythm/hytale-protocol";
 import {
   DEFAULT_EXPECTED_CHART,
@@ -25,6 +26,7 @@ type MutableScenarioOptions = {
   autoConnect?: boolean;
   autoAcknowledgePages?: boolean;
   heartbeatIntervalMs?: number;
+  quic?: BotQuicOptions;
   inputMode?: GameplayInputMode;
   outputDir?: string;
   timeoutMs?: number;
@@ -33,6 +35,14 @@ type MutableScenarioOptions = {
   expectedChart?: string;
   expectedScore?: number;
   expectedMaxCombo?: number;
+};
+type MutableQuicOptions = {
+  serverJarPath?: string;
+  bridgeSourcePath?: string;
+  bridgeClassDir?: string;
+  javaPath?: string;
+  javacPath?: string;
+  readyTimeoutMs?: number;
 };
 
 interface ParsedArgs {
@@ -53,6 +63,12 @@ function usage(): string {
     "  --username <name>                Bot username (default: HyRhythmBot)",
     "  --uuid <uuid>                    Stable bot UUID",
     "  --language <code>                Bot language (default: en)",
+    "  --server-jar <path>              HytaleServer.jar for QUIC bridge (or HYTALE_SERVER_JAR)",
+    "  --java-path <path>               java executable for QUIC bridge",
+    "  --javac-path <path>              javac executable for QUIC bridge",
+    "  --bridge-src <path>              QUIC bridge source file",
+    "  --bridge-class-dir <path>        QUIC bridge output directory",
+    "  --bridge-ready-timeout-ms <ms>   QUIC bridge startup timeout",
     "  --input-mode <command-input|ui-packet>",
     "  --timeout-ms <ms>                Scenario timeout window",
     "  --trace-duration-ms <ms>         Idle/trace duration for long-running scenarios",
@@ -130,6 +146,9 @@ function parseArgs(argv: readonly string[]): ParsedArgs {
     expectedMaxCombo: scenario === "smoke" ? DEFAULT_EXPECTED_MAX_COMBO : undefined
   };
 
+  const quicOptions: MutableQuicOptions = {};
+  let quicTouched = false;
+
   let json = false;
   let outputDir = makeDefaultOutputDir(scenario);
 
@@ -150,6 +169,30 @@ function parseArgs(argv: readonly string[]): ParsedArgs {
         break;
       case "--language":
         options.language = argv[++index] ?? options.language;
+        break;
+      case "--server-jar":
+        quicOptions.serverJarPath = path.resolve(argv[++index] ?? "");
+        quicTouched = true;
+        break;
+      case "--java-path":
+        quicOptions.javaPath = path.resolve(argv[++index] ?? "");
+        quicTouched = true;
+        break;
+      case "--javac-path":
+        quicOptions.javacPath = path.resolve(argv[++index] ?? "");
+        quicTouched = true;
+        break;
+      case "--bridge-src":
+        quicOptions.bridgeSourcePath = path.resolve(argv[++index] ?? "");
+        quicTouched = true;
+        break;
+      case "--bridge-class-dir":
+        quicOptions.bridgeClassDir = path.resolve(argv[++index] ?? "");
+        quicTouched = true;
+        break;
+      case "--bridge-ready-timeout-ms":
+        quicOptions.readyTimeoutMs = parseInteger("--bridge-ready-timeout-ms", argv[++index]);
+        quicTouched = true;
         break;
       case "--input-mode":
         options.inputMode = parseInputMode(argv[++index]);
@@ -187,6 +230,10 @@ function parseArgs(argv: readonly string[]): ParsedArgs {
       default:
         throw new Error(`Unknown argument: ${token}\n\n${usage()}`);
     }
+  }
+
+  if (quicTouched) {
+    options.quic = quicOptions as BotQuicOptions;
   }
 
   assertAsciiOption("--username", options.username, CONNECT_USERNAME_MAX_BYTES);
