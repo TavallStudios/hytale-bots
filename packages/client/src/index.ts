@@ -1,7 +1,11 @@
+import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { EventEmitter } from "node:events";
-import { mkdir, writeFile } from "node:fs/promises";
-import net from "node:net";
+import { existsSync } from "node:fs";
+import { mkdir, stat, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
+import { createInterface } from "node:readline";
+import { fileURLToPath } from "node:url";
 import {
   DEFAULT_HOST,
   DEFAULT_PORT,
@@ -39,6 +43,15 @@ export interface TraceEnableOptions {
   readonly outputDir?: string;
 }
 
+export interface BotQuicOptions {
+  readonly serverJarPath?: string;
+  readonly bridgeSourcePath?: string;
+  readonly bridgeClassDir?: string;
+  readonly javaPath?: string;
+  readonly javacPath?: string;
+  readonly readyTimeoutMs?: number;
+}
+
 export interface BotOptions {
   readonly host?: string;
   readonly port?: number;
@@ -48,6 +61,7 @@ export interface BotOptions {
   readonly autoConnect?: boolean;
   readonly autoAcknowledgePages?: boolean;
   readonly heartbeatIntervalMs?: number;
+  readonly quic?: BotQuicOptions;
 }
 
 export type BotPlugin = (bot: HytaleBot) => void | Promise<void>;
@@ -70,6 +84,141 @@ function timeoutError(label: string, timeoutMs: number): Error {
 }
 
 const DISCONNECT_GRACE_MS = 1_000;
+const DEFAULT_QUIC_READY_TIMEOUT_MS = 10_000;
+const BRIDGE_CLASS_NAME = "HytaleQuicStdioBridge";
+
+function resolveDefaultBridgeSource(): string {
+  const moduleDir = path.dirname(fileURLToPath(import.meta.url));
+  const candidates = [
+    path.resolve(moduleDir, "..", "..", "..", "scripts", "HytaleQuicStdioBridge.java"),
+    path.resolve(moduleDir, "..", "..", "scripts", "HytaleQuicStdioBridge.java"),
+    path.resolve(process.cwd(), "scripts", "HytaleQuicStdioBridge.java"),
+    path.resolve(process.cwd(), "packages", "client", "src", "quic", "HytaleQuicStdioBridge.java"),
+    path.resolve(process.cwd(), "packages", "client", "scripts", "HytaleQuicStdioBridge.java")
+  ];
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  return candidates[0];
+}
+
+function resolveDefaultJavaPath(): string {
+  return process.platform === "win32" ? "java.exe" : "java";
+}
+
+function resolveDefaultJavacPath(): string {
+  return process.platform === "win32" ? "javac.exe" : "javac";
+}
+
+async function runProcess(command: string, args: readonly string[], label: string): Promise<void> {
+  await new Promise<void>((resolve, reject) => {
+    const child = spawn(command, args, { stdio: "inherit" });
+    child.once("error", reject);
+    child.once("exit", (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`${label} failed with exit code ${code ?? "null"}`));
+      }
+    });
+  });
+}
+
+async function ensureBridgeCompiled(options: Required<BotQuicOptions>): Promise<string> {
+  const serverJarPath = options.serverJarPath;
+  const sourcePath = options.bridgeSourcePath;
+  const classDir = options.bridgeClassDir;
+  const classFile = path.join(classDir, `${BRIDGE_CLASS_NAME}.class`);
+
+  if (!existsSync(serverJarPath)) {
+    throw new Error(`Hytale server jar not found at ${serverJarPath}`);
+  }
+  if (!existsSync(sourcePath)) {
+    throw new Error(`QUIC bridge source not found at ${sourcePath}`);
+  }
+
+  let compile = true;
+  if (existsSync(classFile)) {
+    const [sourceStat, classStat] = await Promise.all([stat(sourcePath), stat(classFile)]);
+    if (classStat.mtimeMs >= sourceStat.mtimeMs) {
+      compile = false;
+    }
+  }
+
+  if (compile) {
+    await mkdir(classDir, { recursive: true });
+    await runProcess(options.javacPath, ["-cp", serverJarPath, "-d", classDir, sourcePath], "javac");
+  }
+
+  return classDir;
+}
+
+async function waitForBridgeReady(
+  process: ChildProcessWithoutNullStreams,
+  timeoutMs: number
+): Promise<void> {
+  await new Promise<void>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error(`Timed out waiting for QUIC bridge after ${timeoutMs}ms`));
+    }, timeoutMs);
+
+    const rl = createInterface({ input: process.stderr });
+    const onLine = (line: string): void => {
+      if (line.includes("QUIC_BRIDGE_READY")) {
+        cleanup();
+        resolve();
+      }
+    };
+    const onExit = (code: number | null): void => {
+      cleanup();
+      reject(new Error(`QUIC bridge exited before ready (code ${code ?? "null"})`));
+    };
+    const onError = (error: Error): void => {
+      cleanup();
+      reject(error);
+    };
+
+    function cleanup(): void {
+      clearTimeout(timer);
+      rl.off("line", onLine);
+      rl.close();
+      process.off("exit", onExit);
+      process.off("error", onError);
+    }
+
+    rl.on("line", onLine);
+    process.once("exit", onExit);
+    process.once("error", onError);
+  });
+}
+
+async function startQuicBridge(options: Required<BotQuicOptions>, host: string, port: number): Promise<ChildProcessWithoutNullStreams> {
+  const classDir = await ensureBridgeCompiled(options);
+  const classpath = [options.serverJarPath, classDir].join(path.delimiter);
+  const child = spawn(options.javaPath, ["-cp", classpath, BRIDGE_CLASS_NAME, host, port.toString()], {
+    stdio: ["pipe", "pipe", "pipe"]
+  });
+  await waitForBridgeReady(child, options.readyTimeoutMs);
+  return child;
+}
+
+function resolveQuicOptions(options: BotQuicOptions | undefined): Required<BotQuicOptions> {
+  const serverJarPath = options?.serverJarPath ?? process.env.HYTALE_SERVER_JAR ?? "";
+  if (!serverJarPath) {
+    throw new Error("HYTALE_SERVER_JAR is required for QUIC bot connections.");
+  }
+  return {
+    serverJarPath,
+    bridgeSourcePath: options?.bridgeSourcePath ?? resolveDefaultBridgeSource(),
+    bridgeClassDir: options?.bridgeClassDir ?? path.join(tmpdir(), "hytale-quic-bridge"),
+    javaPath: options?.javaPath ?? resolveDefaultJavaPath(),
+    javacPath: options?.javacPath ?? resolveDefaultJavacPath(),
+    readyTimeoutMs: options?.readyTimeoutMs ?? DEFAULT_QUIC_READY_TIMEOUT_MS
+  };
+}
 
 async function writeJson(filePath: string, value: unknown): Promise<void> {
   await mkdir(path.dirname(filePath), { recursive: true });
@@ -122,7 +271,8 @@ export class HytaleBot extends EventEmitter {
     }
   };
 
-  private socket: net.Socket | null = null;
+  private bridgeProcess: ChildProcessWithoutNullStreams | null = null;
+  private readonly quicOptions?: BotQuicOptions;
   private readonly decoder = new FramedPacketDecoder("toClient");
   private heartbeatTimer: NodeJS.Timeout | null = null;
   private traceEnabled = false;
@@ -150,6 +300,7 @@ export class HytaleBot extends EventEmitter {
     this.language = options.language ?? "en";
     this.autoAcknowledgePages = options.autoAcknowledgePages ?? true;
     this.heartbeatIntervalMs = options.heartbeatIntervalMs ?? 250;
+    this.quicOptions = options.quic;
     this.connectPacket = createConnectPacket({
       username: this.username,
       uuid: this.uuid,
@@ -165,9 +316,30 @@ export class HytaleBot extends EventEmitter {
     if (this.connected) {
       return;
     }
-    await new Promise<void>((resolve, reject) => {
-      const socket = new net.Socket();
-      let settled = false;
+    this.worldJoined = false;
+    this.worldActive = false;
+    this.clientId = null;
+    this.currentPosition = null;
+    this.ui.currentPage = null;
+    this.ui.lastSetPage = null;
+    this.customPageVisible = false;
+
+    const quicOptions = resolveQuicOptions(this.quicOptions);
+    const bridgeProcess = await startQuicBridge(quicOptions, this.host, this.port);
+    this.bridgeProcess = bridgeProcess;
+
+    bridgeProcess.stdout.on("data", (chunk) => {
+      try {
+        this.handleChunk(chunk);
+      } catch (error) {
+        this.recordError(error);
+      }
+    });
+    bridgeProcess.on("error", (error) => {
+      this.recordError(error);
+    });
+    bridgeProcess.on("exit", () => {
+      this.connected = false;
       this.worldJoined = false;
       this.worldActive = false;
       this.clientId = null;
@@ -175,54 +347,21 @@ export class HytaleBot extends EventEmitter {
       this.ui.currentPage = null;
       this.ui.lastSetPage = null;
       this.customPageVisible = false;
-      this.socket = socket;
-
-      const rejectOnce = (error: unknown): void => {
-        if (settled) {
-          this.recordError(error);
-          return;
-        }
-        settled = true;
-        reject(error);
-      };
-
-      socket.once("connect", () => {
-        settled = true;
-        this.connected = true;
-        this.sendPacket(this.connectPacket);
-        this.emit("connect");
-        resolve();
-      });
-      socket.on("data", (chunk) => {
-        try {
-          this.handleChunk(chunk);
-        } catch (error) {
-          rejectOnce(error);
-        }
-      });
-      socket.on("error", rejectOnce);
-      socket.on("close", () => {
-        this.connected = false;
-        this.worldJoined = false;
-        this.worldActive = false;
-        this.clientId = null;
-        this.currentPosition = null;
-        this.ui.currentPage = null;
-        this.ui.lastSetPage = null;
-        this.customPageVisible = false;
-        this.socket = null;
-        this.stopHeartbeat();
-        this.emit("close");
-      });
-      socket.connect({ host: this.host, port: this.port });
+      this.bridgeProcess = null;
+      this.stopHeartbeat();
+      this.emit("close");
     });
+
+    this.connected = true;
+    this.sendPacket(this.connectPacket);
+    this.emit("connect");
   }
 
   async disconnect(): Promise<void> {
     this.stopHeartbeat();
-    const socket = this.socket;
-    if (!socket || socket.destroyed) {
-      this.socket = null;
+    const bridgeProcess = this.bridgeProcess;
+    if (!bridgeProcess || bridgeProcess.killed) {
+      this.bridgeProcess = null;
       return;
     }
     await new Promise<void>((resolve) => {
@@ -235,30 +374,29 @@ export class HytaleBot extends EventEmitter {
         clearTimeout(forceCloseTimer);
         resolve();
       };
-
-      socket.once("close", finish);
-      socket.once("error", finish);
+      bridgeProcess.once("exit", finish);
+      bridgeProcess.once("error", finish);
       const forceCloseTimer = setTimeout(() => {
-        if (!socket.destroyed) {
-          socket.destroy();
+        if (!bridgeProcess.killed) {
+          bridgeProcess.kill();
         }
       }, DISCONNECT_GRACE_MS);
-      socket.end();
+      bridgeProcess.stdin.end();
       setImmediate(() => {
-        if (socket.destroyed) {
+        if (bridgeProcess.exitCode != null) {
           finish();
         }
       });
     });
-    this.socket = null;
+    this.bridgeProcess = null;
   }
 
   sendPacket(packet: StructuredPacket): void {
-    if (!this.socket || !this.connected) {
+    if (!this.bridgeProcess || !this.connected) {
       throw new ProtocolError(`Cannot send ${packet.name} because the bot is not connected`);
     }
     this.recordPacket("out", packet);
-    this.socket.write(encodeFramedPacket(packet, "toServer"));
+    this.bridgeProcess.stdin.write(encodeFramedPacket(packet, "toServer"));
   }
 
   chat(message: string): void {
