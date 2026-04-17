@@ -284,7 +284,10 @@ async function executeScenario(name: ScenarioName, options: ScenarioOptions): Pr
     username: options.username,
     uuid: options.uuid,
     language: options.language,
-    autoAcknowledgePages: options.autoAcknowledgePages
+    autoAcknowledgePages: options.autoAcknowledgePages,
+    heartbeatIntervalMs: options.heartbeatIntervalMs,
+    quic: options.quic,
+    auth: options.auth
   });
 
   let finalServerMessage: string | null = null;
