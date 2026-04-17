@@ -238,5 +238,45 @@ export function formattedMessageToPlainText(message: FormattedMessage | null | u
     current.children?.forEach((child) => append(child));
   };
   append(message);
-  return parts.join(" ").trim();
+  if (parts.length > 0) {
+    return parts.join(" ").trim();
+  }
+
+  const fallbackParts: string[] = [];
+  const appendParam = (param: ParamValue): void => {
+    if (param.kind === "string") {
+      if (param.value && param.value.trim().length > 0) {
+        fallbackParts.push(param.value.trim());
+      }
+      return;
+    }
+    if (param.value !== null && param.value !== undefined) {
+      fallbackParts.push(String(param.value));
+    }
+  };
+  const collectFallback = (current: FormattedMessage): void => {
+    if (current.params) {
+      Object.values(current.params).forEach(appendParam);
+    }
+    if (current.messageParams) {
+      Object.values(current.messageParams).forEach((child) => {
+        const text = formattedMessageToPlainText(child);
+        if (text) {
+          fallbackParts.push(text);
+        }
+      });
+    }
+    current.children?.forEach(collectFallback);
+  };
+  collectFallback(message);
+
+  if (fallbackParts.length > 0) {
+    return fallbackParts.join(" ").trim();
+  }
+
+  try {
+    return JSON.stringify(message);
+  } catch {
+    return "";
+  }
 }

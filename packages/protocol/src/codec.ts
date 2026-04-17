@@ -8,6 +8,8 @@ import {
 } from "./constants.js";
 import { ProtocolError } from "./errors.js";
 import {
+  decodeAuthGrantPacket,
+  decodeAuthTokenPacket,
   decodeChatMessagePacket,
   decodeClientMovementPacket,
   decodeClientReadyPacket,
@@ -21,11 +23,14 @@ import {
   decodePlayerOptionsPacket,
   decodePongPacket,
   decodeRequestAssetsPacket,
+  decodeServerAuthTokenPacket,
   decodeServerMessagePacket,
   decodeSetClientIdPacket,
   decodeSetPagePacket,
   decodeViewRadiusPacket,
   decodeWorldSettingsPacket,
+  encodeAuthGrantPacket,
+  encodeAuthTokenPacket,
   encodeChatMessagePacket,
   encodeClientMovementPacket,
   encodeClientReadyPacket,
@@ -39,17 +44,22 @@ import {
   encodePlayerOptionsPacket,
   encodePongPacket,
   encodeRequestAssetsPacket,
+  encodeServerAuthTokenPacket,
   encodeServerMessagePacket,
   encodeSetClientIdPacket,
   encodeSetPagePacket,
   encodeViewRadiusPacket,
   encodeWorldSettingsPacket
 } from "./packets-core.js";
+import { decodeEntityUpdatesPacket, decodeUpdateEntityStatTypesPacket, decodeUpdatePlayerInventoryPacket } from "./packets-world.js";
 import { assertPacketDirection, getPacketRegistryEntryById, getPacketRegistryEntryByName, type WireDirection } from "./registry.js";
 import type { ConnectPacket, DecodedPacket, StructuredPacket } from "./types.js";
 
 const STRUCTURED_PACKET_NAMES = new Set<string>([
   "Connect",
+  "AuthGrant",
+  "AuthToken",
+  "ServerAuthToken",
   "Disconnect",
   "Ping",
   "Pong",
@@ -66,7 +76,10 @@ const STRUCTURED_PACKET_NAMES = new Set<string>([
   "SetPage",
   "CustomPage",
   "CustomPageEvent",
-  "ServerMessage"
+  "ServerMessage",
+  "UpdateEntityStatTypes",
+  "UpdatePlayerInventory",
+  "EntityUpdates"
 ]);
 
 function assertAsciiConnectField(label: string, value: string, maxBytes: number): void {
@@ -143,6 +156,9 @@ export function decodePacket(payload: Buffer, packetId: number, direction: WireD
 function decodeStructuredPacket(name: string, payload: Buffer): StructuredPacket {
   switch (name) {
     case "Connect": return decodeConnectPacket(payload);
+    case "AuthGrant": return decodeAuthGrantPacket(payload);
+    case "AuthToken": return decodeAuthTokenPacket(payload);
+    case "ServerAuthToken": return decodeServerAuthTokenPacket(payload);
     case "Disconnect": return decodeDisconnectPacket(payload);
     case "Ping": return decodePingPacket(payload);
     case "Pong": return decodePongPacket(payload);
@@ -160,6 +176,9 @@ function decodeStructuredPacket(name: string, payload: Buffer): StructuredPacket
     case "CustomPage": return decodeCustomPagePacket(payload);
     case "CustomPageEvent": return decodeCustomPageEventPacket(payload);
     case "ServerMessage": return decodeServerMessagePacket(payload);
+    case "UpdateEntityStatTypes": return decodeUpdateEntityStatTypesPacket(payload);
+    case "UpdatePlayerInventory": return decodeUpdatePlayerInventoryPacket(payload);
+    case "EntityUpdates": return decodeEntityUpdatesPacket(payload);
     default:
       throw new ProtocolError(`Structured decoder missing for ${name}`);
   }
@@ -168,6 +187,9 @@ function decodeStructuredPacket(name: string, payload: Buffer): StructuredPacket
 function encodeStructuredPacket(packet: StructuredPacket): Buffer {
   switch (packet.name) {
     case "Connect": return encodeConnectPacket(packet);
+    case "AuthGrant": return encodeAuthGrantPacket(packet);
+    case "AuthToken": return encodeAuthTokenPacket(packet);
+    case "ServerAuthToken": return encodeServerAuthTokenPacket(packet);
     case "Disconnect": return encodeDisconnectPacket(packet);
     case "Ping": return encodePingPacket(packet);
     case "Pong": return encodePongPacket(packet);
@@ -185,5 +207,9 @@ function encodeStructuredPacket(packet: StructuredPacket): Buffer {
     case "CustomPage": return encodeCustomPagePacket(packet);
     case "CustomPageEvent": return encodeCustomPageEventPacket(packet);
     case "ServerMessage": return encodeServerMessagePacket(packet);
+    case "UpdateEntityStatTypes":
+    case "UpdatePlayerInventory":
+    case "EntityUpdates":
+      throw new ProtocolError(`Encoding not implemented for ${packet.name}`);
   }
 }

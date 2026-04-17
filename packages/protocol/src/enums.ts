@@ -97,3 +97,50 @@ export const DISCONNECT_TYPES = ["Disconnect", "Crash"] as const;
 export type DisconnectType = (typeof DISCONNECT_TYPES)[number];
 export const readDisconnectType = (value: number): DisconnectType => enumFromValue(DISCONNECT_TYPES, value, "DisconnectType");
 export const writeDisconnectType = (value: DisconnectType): number => enumToValue(DISCONNECT_TYPES, value, "DisconnectType");
+
+export const SORT_TYPES = ["Name", "Type", "Rarity"] as const;
+export type SortType = (typeof SORT_TYPES)[number];
+export const readSortType = (value: number): SortType => enumFromValue(SORT_TYPES, value, "SortType");
+export const writeSortType = (value: SortType): number => enumToValue(SORT_TYPES, value, "SortType");
+
+export const UPDATE_TYPES = ["Init", "AddOrUpdate", "Remove"] as const;
+export type UpdateType = (typeof UPDATE_TYPES)[number];
+export const readUpdateType = (value: number): UpdateType => enumFromValue(UPDATE_TYPES, value, "UpdateType");
+export const writeUpdateType = (value: UpdateType): number => enumToValue(UPDATE_TYPES, value, "UpdateType");
+
+export const ENTITY_STAT_OPS = [
+  "Init",
+  "Remove",
+  "PutModifier",
+  "RemoveModifier",
+  "Add",
+  "Set",
+  "Minimize",
+  "Maximize",
+  "Reset"
+] as const;
+export type EntityStatOp = (typeof ENTITY_STAT_OPS)[number];
+export const readEntityStatOp = (value: number): EntityStatOp => enumFromValue(ENTITY_STAT_OPS, value, "EntityStatOp");
+export const writeEntityStatOp = (value: EntityStatOp): number => enumToValue(ENTITY_STAT_OPS, value, "EntityStatOp");
+
+export const MODIFIER_TARGETS = ["Min", "Max"] as const;
+export type ModifierTarget = (typeof MODIFIER_TARGETS)[number];
+export const readModifierTarget = (value: number): ModifierTarget => enumFromValue(MODIFIER_TARGETS, value, "ModifierTarget");
+export const writeModifierTarget = (value: ModifierTarget): number => enumToValue(MODIFIER_TARGETS, value, "ModifierTarget");
+
+export const CALCULATION_TYPES = ["Additive", "Multiplicative"] as const;
+export type CalculationType = (typeof CALCULATION_TYPES)[number];
+export const readCalculationType = (value: number): CalculationType => enumFromValue(CALCULATION_TYPES, value, "CalculationType");
+export const writeCalculationType = (value: CalculationType): number => enumToValue(CALCULATION_TYPES, value, "CalculationType");
+
+export const ENTITY_STAT_RESET_BEHAVIORS = ["InitialValue", "MaxValue"] as const;
+export type EntityStatResetBehavior = (typeof ENTITY_STAT_RESET_BEHAVIORS)[number];
+export const readEntityStatResetBehavior = (value: number): EntityStatResetBehavior =>
+  enumFromValue(ENTITY_STAT_RESET_BEHAVIORS, value, "EntityStatResetBehavior");
+export const writeEntityStatResetBehavior = (value: EntityStatResetBehavior): number =>
+  enumToValue(ENTITY_STAT_RESET_BEHAVIORS, value, "EntityStatResetBehavior");
+
+export const ENTITY_PARTS = ["Self", "Entity", "PrimaryItem", "SecondaryItem"] as const;
+export type EntityPart = (typeof ENTITY_PARTS)[number];
+export const readEntityPart = (value: number): EntityPart => enumFromValue(ENTITY_PARTS, value, "EntityPart");
+export const writeEntityPart = (value: EntityPart): number => enumToValue(ENTITY_PARTS, value, "EntityPart");

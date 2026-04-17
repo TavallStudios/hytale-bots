@@ -27,6 +27,8 @@ import {
   writeVector3d
 } from "./model/primitives.js";
 import type {
+  AuthGrantPacket,
+  AuthTokenPacket,
   ChatMessagePacket,
   ClientMovementPacket,
   ClientReadyPacket,
@@ -40,6 +42,7 @@ import type {
   PlayerOptionsPacket,
   PongPacket,
   RequestAssetsPacket,
+  ServerAuthTokenPacket,
   ServerMessagePacket,
   SetClientIdPacket,
   SetPagePacket,
@@ -123,6 +126,138 @@ export function encodeConnectPacket(packet: ConnectPacket): Buffer {
     writeHostAddress(writer, packet.referralSource);
   } else {
     writer.setInt32LE(referralSourceOffsetSlot, -1);
+  }
+  return writer.toBuffer();
+}
+
+export function decodeAuthGrantPacket(buffer: Buffer): AuthGrantPacket {
+  const nullBits = readUInt8(buffer, 0);
+  let authorizationGrant: string | null = null;
+  if ((nullBits & 1) !== 0) {
+    authorizationGrant = readVarString(buffer, 9 + readInt32LE(buffer, 1), "utf8").value;
+  }
+  let serverIdentityToken: string | null = null;
+  if ((nullBits & 2) !== 0) {
+    serverIdentityToken = readVarString(buffer, 9 + readInt32LE(buffer, 5), "utf8").value;
+  }
+  return {
+    name: "AuthGrant",
+    authorizationGrant,
+    serverIdentityToken
+  };
+}
+
+export function encodeAuthGrantPacket(packet: AuthGrantPacket): Buffer {
+  const writer = new BufferWriter(64);
+  const nullBits = (packet.authorizationGrant != null ? 1 : 0) | (packet.serverIdentityToken != null ? 2 : 0);
+  writer.writeUInt8(nullBits);
+  const authorizationGrantOffsetSlot = writer.offset;
+  writer.writeInt32LE(0);
+  const serverIdentityTokenOffsetSlot = writer.offset;
+  writer.writeInt32LE(0);
+  const variableBase = writer.offset;
+  if (packet.authorizationGrant != null) {
+    writer.setInt32LE(authorizationGrantOffsetSlot, writer.offset - variableBase);
+    writeVarString(writer, packet.authorizationGrant, 4096, "utf8");
+  } else {
+    writer.setInt32LE(authorizationGrantOffsetSlot, -1);
+  }
+  if (packet.serverIdentityToken != null) {
+    writer.setInt32LE(serverIdentityTokenOffsetSlot, writer.offset - variableBase);
+    writeVarString(writer, packet.serverIdentityToken, 8192, "utf8");
+  } else {
+    writer.setInt32LE(serverIdentityTokenOffsetSlot, -1);
+  }
+  return writer.toBuffer();
+}
+
+export function decodeAuthTokenPacket(buffer: Buffer): AuthTokenPacket {
+  const nullBits = readUInt8(buffer, 0);
+  let accessToken: string | null = null;
+  if ((nullBits & 1) !== 0) {
+    accessToken = readVarString(buffer, 9 + readInt32LE(buffer, 1), "utf8").value;
+  }
+  let serverAuthorizationGrant: string | null = null;
+  if ((nullBits & 2) !== 0) {
+    serverAuthorizationGrant = readVarString(buffer, 9 + readInt32LE(buffer, 5), "utf8").value;
+  }
+  return {
+    name: "AuthToken",
+    accessToken,
+    serverAuthorizationGrant
+  };
+}
+
+export function encodeAuthTokenPacket(packet: AuthTokenPacket): Buffer {
+  const writer = new BufferWriter(64);
+  const nullBits = (packet.accessToken != null ? 1 : 0) | (packet.serverAuthorizationGrant != null ? 2 : 0);
+  writer.writeUInt8(nullBits);
+  const accessTokenOffsetSlot = writer.offset;
+  writer.writeInt32LE(0);
+  const serverAuthorizationGrantOffsetSlot = writer.offset;
+  writer.writeInt32LE(0);
+  const variableBase = writer.offset;
+  if (packet.accessToken != null) {
+    writer.setInt32LE(accessTokenOffsetSlot, writer.offset - variableBase);
+    writeVarString(writer, packet.accessToken, 8192, "utf8");
+  } else {
+    writer.setInt32LE(accessTokenOffsetSlot, -1);
+  }
+  if (packet.serverAuthorizationGrant != null) {
+    writer.setInt32LE(serverAuthorizationGrantOffsetSlot, writer.offset - variableBase);
+    writeVarString(writer, packet.serverAuthorizationGrant, 4096, "utf8");
+  } else {
+    writer.setInt32LE(serverAuthorizationGrantOffsetSlot, -1);
+  }
+  return writer.toBuffer();
+}
+
+export function decodeServerAuthTokenPacket(buffer: Buffer): ServerAuthTokenPacket {
+  const nullBits = readUInt8(buffer, 0);
+  let serverAccessToken: string | null = null;
+  if ((nullBits & 1) !== 0) {
+    serverAccessToken = readVarString(buffer, 9 + readInt32LE(buffer, 1), "utf8").value;
+  }
+  let passwordChallenge: Buffer | null = null;
+  if ((nullBits & 2) !== 0) {
+    const base = 9 + readInt32LE(buffer, 5);
+    const length = readVarInt(buffer, base);
+    if (length.value > 64) {
+      throw new ProtocolError(`PasswordChallenge exceeds max length 64: ${length.value}`);
+    }
+    passwordChallenge = buffer.subarray(base + length.bytesRead, base + length.bytesRead + length.value);
+  }
+  return {
+    name: "ServerAuthToken",
+    serverAccessToken,
+    passwordChallenge
+  };
+}
+
+export function encodeServerAuthTokenPacket(packet: ServerAuthTokenPacket): Buffer {
+  const writer = new BufferWriter(64);
+  const nullBits = (packet.serverAccessToken != null ? 1 : 0) | (packet.passwordChallenge != null ? 2 : 0);
+  writer.writeUInt8(nullBits);
+  const serverAccessTokenOffsetSlot = writer.offset;
+  writer.writeInt32LE(0);
+  const passwordChallengeOffsetSlot = writer.offset;
+  writer.writeInt32LE(0);
+  const variableBase = writer.offset;
+  if (packet.serverAccessToken != null) {
+    writer.setInt32LE(serverAccessTokenOffsetSlot, writer.offset - variableBase);
+    writeVarString(writer, packet.serverAccessToken, 8192, "utf8");
+  } else {
+    writer.setInt32LE(serverAccessTokenOffsetSlot, -1);
+  }
+  if (packet.passwordChallenge != null) {
+    writer.setInt32LE(passwordChallengeOffsetSlot, writer.offset - variableBase);
+    if (packet.passwordChallenge.length > 64) {
+      throw new ProtocolError(`PasswordChallenge exceeds max length 64: ${packet.passwordChallenge.length}`);
+    }
+    writeVarInt(writer, packet.passwordChallenge.length);
+    writer.writeBytes(packet.passwordChallenge);
+  } else {
+    writer.setInt32LE(passwordChallengeOffsetSlot, -1);
   }
   return writer.toBuffer();
 }

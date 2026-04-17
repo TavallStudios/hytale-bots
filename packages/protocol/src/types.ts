@@ -1,4 +1,5 @@
 import type {
+  CalculationType,
   ChatType,
   ClientType,
   CustomPageEventType,
@@ -6,9 +7,15 @@ import type {
   CustomUICommandType,
   CustomUIEventBindingType,
   DisconnectType,
+  EntityPart,
+  EntityStatOp,
+  EntityStatResetBehavior,
   MaybeBool,
+  ModifierTarget,
   PageType,
-  PongType
+  PongType,
+  SortType,
+  UpdateType
 } from "./enums.js";
 import type { WireDirection } from "./registry.js";
 
@@ -55,6 +62,18 @@ export interface Vector3d {
   readonly z: number;
 }
 
+export interface Vector3f {
+  readonly x: number;
+  readonly y: number;
+  readonly z: number;
+}
+
+export interface Color {
+  readonly red: number;
+  readonly green: number;
+  readonly blue: number;
+}
+
 export interface MovementStates {
   readonly idle: boolean;
   readonly horizontalIdle: boolean;
@@ -78,6 +97,90 @@ export interface MovementStates {
   readonly sitting: boolean;
   readonly gliding: boolean;
   readonly sleeping: boolean;
+}
+
+export interface Modifier {
+  readonly target: ModifierTarget;
+  readonly calculationType: CalculationType;
+  readonly amount: number;
+}
+
+export interface EntityStatUpdate {
+  readonly op: EntityStatOp;
+  readonly predictable: boolean;
+  readonly value: number;
+  readonly modifiers?: Readonly<Record<string, Modifier>> | null;
+  readonly modifierKey?: string | null;
+  readonly modifier?: Modifier | null;
+}
+
+export interface EntityStatEffects {
+  readonly triggerAtZero: boolean;
+  readonly soundEventIndex: number;
+  readonly particles?: readonly ModelParticle[] | null;
+}
+
+export interface ModelParticle {
+  readonly systemId?: string | null;
+  readonly scale: number;
+  readonly color?: Color | null;
+  readonly targetEntityPart: EntityPart;
+  readonly targetNodeName?: string | null;
+  readonly positionOffset?: Vector3f | null;
+  readonly rotationOffset?: Direction | null;
+  readonly detachedFromModel: boolean;
+}
+
+export interface EntityStatType {
+  readonly id?: string | null;
+  readonly value: number;
+  readonly min: number;
+  readonly max: number;
+  readonly minValueEffects?: EntityStatEffects | null;
+  readonly maxValueEffects?: EntityStatEffects | null;
+  readonly resetBehavior: EntityStatResetBehavior;
+  readonly hideFromTooltip: boolean;
+}
+
+export interface EntityStatsUpdate {
+  readonly entityStatUpdates: Readonly<Record<number, readonly EntityStatUpdate[]>>;
+}
+
+export interface TransformUpdate {
+  readonly kind: "Transform";
+  readonly transform: ModelTransform;
+}
+
+export interface MovementStatesUpdate {
+  readonly kind: "MovementStates";
+  readonly movementStates: MovementStates;
+}
+
+export interface EntityStatsUpdateComponent {
+  readonly kind: "EntityStats";
+  readonly entityStatUpdates: Readonly<Record<number, readonly EntityStatUpdate[]>>;
+}
+
+export type ComponentUpdate = TransformUpdate | MovementStatesUpdate | EntityStatsUpdateComponent;
+
+export interface EntityUpdate {
+  readonly networkId: number;
+  readonly removed?: readonly number[] | null;
+  readonly updates?: readonly ComponentUpdate[] | null;
+}
+
+export interface ItemWithAllMetadata {
+  readonly itemId: string;
+  readonly quantity: number;
+  readonly durability: number;
+  readonly maxDurability: number;
+  readonly overrideDroppedItemAnimation: boolean;
+  readonly metadata?: string | null;
+}
+
+export interface InventorySection {
+  readonly items?: Readonly<Record<number, ItemWithAllMetadata>> | null;
+  readonly capacity: number;
 }
 
 export interface ModelTransform {
@@ -154,6 +257,24 @@ export interface ConnectPacket {
   readonly language: string;
   readonly referralData?: Buffer | null;
   readonly referralSource?: HostAddress | null;
+}
+
+export interface AuthGrantPacket {
+  readonly name: "AuthGrant";
+  readonly authorizationGrant?: string | null;
+  readonly serverIdentityToken?: string | null;
+}
+
+export interface AuthTokenPacket {
+  readonly name: "AuthToken";
+  readonly accessToken?: string | null;
+  readonly serverAuthorizationGrant?: string | null;
+}
+
+export interface ServerAuthTokenPacket {
+  readonly name: "ServerAuthToken";
+  readonly serverAccessToken?: string | null;
+  readonly passwordChallenge?: Buffer | null;
 }
 
 export interface DisconnectPacket {
@@ -272,6 +393,33 @@ export interface ServerMessagePacket {
   readonly message?: FormattedMessage | null;
 }
 
+export interface UpdateEntityStatTypesPacket {
+  readonly name: "UpdateEntityStatTypes";
+  readonly type: UpdateType;
+  readonly maxId: number;
+  readonly types?: Readonly<Record<number, EntityStatType>> | null;
+}
+
+export interface UpdatePlayerInventoryPacket {
+  readonly name: "UpdatePlayerInventory";
+  readonly storage?: InventorySection | null;
+  readonly armor?: InventorySection | null;
+  readonly hotbar?: InventorySection | null;
+  readonly utility?: InventorySection | null;
+  readonly builderMaterial?: InventorySection | null;
+  readonly tools?: InventorySection | null;
+  readonly backpack?: InventorySection | null;
+  readonly sortType: SortType;
+}
+
+export interface EntityUpdatesPacket {
+  readonly name: "EntityUpdates";
+  readonly removed?: readonly number[] | null;
+  readonly updates?: readonly EntityUpdate[] | null;
+  readonly partial?: boolean;
+  readonly partialReason?: string | null;
+}
+
 export interface RawPacket {
   readonly name: string;
   readonly id: number;
@@ -283,6 +431,9 @@ export interface RawPacket {
 
 export type StructuredPacket =
   | ConnectPacket
+  | AuthGrantPacket
+  | AuthTokenPacket
+  | ServerAuthTokenPacket
   | DisconnectPacket
   | PingPacket
   | PongPacket
@@ -299,6 +450,9 @@ export type StructuredPacket =
   | SetPagePacket
   | CustomPagePacket
   | CustomPageEventPacket
-  | ServerMessagePacket;
+  | ServerMessagePacket
+  | UpdateEntityStatTypesPacket
+  | UpdatePlayerInventoryPacket
+  | EntityUpdatesPacket;
 
 export type DecodedPacket = StructuredPacket | RawPacket;

@@ -15,6 +15,7 @@ import {
 } from "../binary.js";
 import type {
   Asset,
+  Color,
   Direction,
   HalfFloatPosition,
   HostAddress,
@@ -23,6 +24,7 @@ import type {
   MovementStates,
   Position,
   TeleportAck,
+  Vector3f,
   Vector3d
 } from "../types.js";
 
@@ -207,6 +209,48 @@ export function writeVector3d(writer: BufferWriter, value: Vector3d | null | und
   writer.writeDoubleLE(value.x);
   writer.writeDoubleLE(value.y);
   writer.writeDoubleLE(value.z);
+}
+
+export function readVector3f(buffer: Buffer, offset: number): ReadResult<Vector3f> {
+  return {
+    value: {
+      x: readFloatLE(buffer, offset),
+      y: readFloatLE(buffer, offset + 4),
+      z: readFloatLE(buffer, offset + 8)
+    },
+    bytesRead: 12
+  };
+}
+
+export function writeVector3f(writer: BufferWriter, value: Vector3f | null | undefined): void {
+  if (!value) {
+    writer.writeZero(12);
+    return;
+  }
+  writer.writeFloatLE(value.x);
+  writer.writeFloatLE(value.y);
+  writer.writeFloatLE(value.z);
+}
+
+export function readColor(buffer: Buffer, offset: number): ReadResult<Color> {
+  return {
+    value: {
+      red: readUInt8(buffer, offset),
+      green: readUInt8(buffer, offset + 1),
+      blue: readUInt8(buffer, offset + 2)
+    },
+    bytesRead: 3
+  };
+}
+
+export function writeColor(writer: BufferWriter, value: Color | null | undefined): void {
+  if (!value) {
+    writer.writeZero(3);
+    return;
+  }
+  writer.writeUInt8(value.red);
+  writer.writeUInt8(value.green);
+  writer.writeUInt8(value.blue);
 }
 
 export function readMovementStates(buffer: Buffer, offset: number): ReadResult<MovementStates> {
