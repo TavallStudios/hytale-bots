@@ -20,8 +20,12 @@ import io.netty.util.concurrent.Future;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -41,7 +45,9 @@ public final class HytaleQuicStdioBridge {
         String quicHost = args[0];
         int quicPort = Integer.parseInt(args[1]);
         InetSocketAddress quicAddress = new InetSocketAddress(quicHost, quicPort);
-        QuicSslContext sslContext = buildClientSslContext();
+        SelfSignedCertificate certificate = new SelfSignedCertificate("localhost");
+        String fingerprint = computeFingerprint(certificate.cert());
+        QuicSslContext sslContext = buildClientSslContext(certificate);
 
         NioEventLoopGroup eventLoopGroup = new NioEventLoopGroup(1);
         Channel udpChannel = null;
@@ -60,7 +66,9 @@ public final class HytaleQuicStdioBridge {
                     .initialMaxData(10_000_000)
                     .initialMaxStreamDataBidirectionalLocal(1_000_000)
                     .initialMaxStreamDataBidirectionalRemote(1_000_000)
+                    .initialMaxStreamDataUnidirectional(1_000_000)
                     .initialMaxStreamsBidirectional(4)
+                    .initialMaxStreamsUnidirectional(4)
                     .build())
                 .bind(0);
 
@@ -72,7 +80,7 @@ public final class HytaleQuicStdioBridge {
             logInfo("Connecting QUIC", quicAddress);
             Future<QuicChannel> quicConnectFuture = QuicChannel.newBootstrap(udpChannel)
                 .handler(new ChannelInboundHandlerAdapter())
-                .streamHandler(new ChannelInboundHandlerAdapter())
+                .streamHandler(new DiscardingStreamHandler())
                 .remoteAddress(quicAddress)
                 .connect();
 
@@ -98,6 +106,7 @@ public final class HytaleQuicStdioBridge {
                 throw new IllegalStateException("QUIC stream creation failed");
             }
 
+            System.err.printf("[%s] QUIC_BRIDGE_CERT_FINGERPRINT=%s%n", Instant.now(), fingerprint);
             System.err.printf("[%s] QUIC_BRIDGE_READY host=%s port=%d%n", Instant.now(), quicHost, quicPort);
             System.err.flush();
 
@@ -119,13 +128,27 @@ public final class HytaleQuicStdioBridge {
         }
     }
 
-    private static QuicSslContext buildClientSslContext() throws CertificateException {
-        SelfSignedCertificate certificate = new SelfSignedCertificate("localhost");
+    private static QuicSslContext buildClientSslContext(SelfSignedCertificate certificate) throws CertificateException {
         return QuicSslContextBuilder.forClient()
             .trustManager(InsecureTrustManagerFactory.INSTANCE)
             .keyManager(certificate.key(), null, certificate.cert())
             .applicationProtocols("hytale/2", "hytale/1")
             .build();
+    }
+
+    private static String computeFingerprint(X509Certificate certificate) throws CertificateException {
+        try {
+            MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+            byte[] hash = sha256.digest(certificate.getEncoded());
+            return base64UrlEncode(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 not available", e);
+        }
+    }
+
+    private static String base64UrlEncode(byte[] input) {
+        String base64 = Base64.getEncoder().encodeToString(input);
+        return base64.replace('+', '-').replace('/', '_').replace("=", "");
     }
 
     private static void closeChannel(Channel channel) {
@@ -215,5 +238,12 @@ public final class HytaleQuicStdioBridge {
             super.channelInactive(ctx);
         }
 
+    }
+
+    private static final class DiscardingStreamHandler extends SimpleChannelInboundHandler<ByteBuf> {
+        @Override
+        protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) {
+            // Intentionally discard data from non-primary streams to avoid stalling the connection.
+        }
     }
 }
