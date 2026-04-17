@@ -27,6 +27,13 @@ type MutableScenarioOptions = {
   autoAcknowledgePages?: boolean;
   heartbeatIntervalMs?: number;
   quic?: BotQuicOptions;
+  auth?: {
+    domain?: string;
+    identityToken?: string;
+    sessionToken?: string;
+    password?: string;
+    scopes?: readonly string[];
+  };
   inputMode?: GameplayInputMode;
   outputDir?: string;
   timeoutMs?: number;
@@ -63,6 +70,11 @@ function usage(): string {
     "  --username <name>                Bot username (default: HyRhythmBot)",
     "  --uuid <uuid>                    Stable bot UUID",
     "  --language <code>                Bot language (default: en)",
+    "  --auth-domain <host>             Auth domain (ex: auth.sanasol.ws)",
+    "  --identity-token <jwt>           Pre-issued identity token",
+    "  --session-token <jwt>            Pre-issued session token",
+    "  --auth-password <password>       Account password (if required)",
+    "  --auth-scopes <csv>              Comma-separated scopes (default: hytale:client,hytale:server)",
     "  --server-jar <path>              HytaleServer.jar for QUIC bridge (or HYTALE_SERVER_JAR)",
     "  --java-path <path>               java executable for QUIC bridge",
     "  --javac-path <path>              javac executable for QUIC bridge",
@@ -170,6 +182,27 @@ function parseArgs(argv: readonly string[]): ParsedArgs {
       case "--language":
         options.language = argv[++index] ?? options.language;
         break;
+      case "--auth-domain":
+        options.auth = { ...options.auth, domain: argv[++index] ?? options.auth?.domain };
+        break;
+      case "--identity-token":
+        options.auth = { ...options.auth, identityToken: argv[++index] ?? options.auth?.identityToken };
+        break;
+      case "--session-token":
+        options.auth = { ...options.auth, sessionToken: argv[++index] ?? options.auth?.sessionToken };
+        break;
+      case "--auth-password":
+        options.auth = { ...options.auth, password: argv[++index] ?? options.auth?.password };
+        break;
+      case "--auth-scopes": {
+        const raw = argv[++index] ?? "";
+        const scopes = raw
+          .split(",")
+          .map((value) => value.trim())
+          .filter((value) => value.length > 0);
+        options.auth = { ...options.auth, scopes };
+        break;
+      }
       case "--server-jar":
         quicOptions.serverJarPath = path.resolve(argv[++index] ?? "");
         quicTouched = true;
@@ -250,11 +283,19 @@ function parseArgs(argv: readonly string[]): ParsedArgs {
 
 async function writeResult(outputDir: string, result: ScenarioResult | readonly ScenarioResult[]): Promise<void> {
   await mkdir(outputDir, { recursive: true });
-  await writeFile(
-    path.join(outputDir, "scenario-result.json"),
-    `${JSON.stringify(result, (_key, candidate) => typeof candidate === "bigint" ? candidate.toString() : candidate, 2)}\n`,
-    "utf8"
-  );
+  const entries = Array.isArray(result) ? result : [result];
+  const lines: string[] = [`generatedAt=${new Date().toISOString()}`];
+  for (const entry of entries) {
+    lines.push("");
+    lines.push(`[scenario:${entry.name}]`);
+    lines.push(`success=${entry.success}`);
+    lines.push(`startedAt=${entry.startedAt}`);
+    lines.push(`endedAt=${entry.endedAt}`);
+    lines.push(`assertions=${entry.assertions.join(",")}`);
+    lines.push(`outputDir=${entry.outputDir ?? ""}`);
+    lines.push(`finalServerMessage=${entry.finalServerMessage ?? ""}`);
+  }
+  await writeFile(path.join(outputDir, "scenario-result.txt"), `${lines.join("\n")}\n`, "utf8");
 }
 
 function printResult(result: ScenarioResult | readonly ScenarioResult[], json: boolean): void {
