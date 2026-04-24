@@ -510,6 +510,17 @@ function formatTraceTranscript(
     incrementCount(packetCounts, `${entry.direction}:${entry.packetName}`);
   }
 
+  const safeJson = (value: unknown): string => {
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return "[unserializable]";
+    }
+  };
+
+  const truncate = (value: string, maxLength = 600): string =>
+    value.length <= maxLength ? value : `${value.slice(0, Math.max(0, maxLength - 3))}...`;
+
   const lines: string[] = [
     `generatedAt=${new Date().toISOString()}`,
     `bot=${bot}`,
@@ -529,6 +540,43 @@ function formatTraceTranscript(
     for (const [key, count] of [...packetCounts.entries()].sort((left, right) => left[0].localeCompare(right[0]))) {
       lines.push(`${key}=${count}`);
     }
+  }
+
+  const interestingNames = new Set([
+    "AddToServerPlayerList",
+    "UpdateServerPlayerList",
+    "JoinWorld",
+    "WorldLoadFinished",
+    "WorldLoadProgress",
+    "SetClientId",
+    "ClientTeleport",
+    "ServerDisconnect",
+    "Disconnect",
+    "ServerMessage"
+  ]);
+  const interestingLines: string[] = [];
+  const seenInteresting = new Set<string>();
+  for (const entry of packetTrace) {
+    if (!interestingNames.has(entry.packetName)) {
+      continue;
+    }
+    const key = `${entry.direction}:${entry.packetName}`;
+    if (seenInteresting.has(key)) {
+      continue;
+    }
+    seenInteresting.add(key);
+    const maxLength = entry.packetName === "ServerMessage" || entry.packetName === "ServerDisconnect" ? 4000 : 600;
+    interestingLines.push(`${entry.at} ${key} ${truncate(safeJson(entry.packet), maxLength)}`);
+    if (interestingLines.length >= 16) {
+      break;
+    }
+  }
+
+  lines.push("", "[packet-sample]");
+  if (interestingLines.length === 0) {
+    lines.push("none");
+  } else {
+    lines.push(...interestingLines);
   }
 
   lines.push("", "[pages]");
@@ -655,6 +703,7 @@ export class HytaleBot extends EventEmitter {
   private connected = false;
   private worldJoined = false;
   private worldActive = false;
+  private worldLoadFinished = false;
   private currentWorldUuid: string | null = null;
   private connectPacket: ConnectPacket;
   private clientId: number | null = null;
@@ -698,6 +747,7 @@ export class HytaleBot extends EventEmitter {
     }
     this.worldJoined = false;
     this.worldActive = false;
+    this.worldLoadFinished = false;
     this.currentWorldUuid = null;
     this.clientId = null;
     this.currentPosition = null;
@@ -760,6 +810,18 @@ export class HytaleBot extends EventEmitter {
       this.bridgeProcess = null;
       return;
     }
+    if (this.connected) {
+      try {
+        this.sendPacket({
+          name: "Disconnect",
+          type: "Disconnect",
+          reason: "bot shutdown"
+        });
+      } catch {
+      }
+      this.connected = false;
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
     await new Promise<void>((resolve) => {
       let settled = false;
       const finish = (): void => {
@@ -777,7 +839,12 @@ export class HytaleBot extends EventEmitter {
           bridgeProcess.kill();
         }
       }, DISCONNECT_GRACE_MS);
-      bridgeProcess.stdin.end();
+      try {
+        if (!bridgeProcess.stdin.destroyed && !bridgeProcess.stdin.writableEnded) {
+          bridgeProcess.stdin.end();
+        }
+      } catch {
+      }
       setImmediate(() => {
         if (bridgeProcess.exitCode != null) {
           finish();
@@ -826,11 +893,27 @@ export class HytaleBot extends EventEmitter {
   }
 
   sendPacket(packet: StructuredPacket): void {
-    if (!this.bridgeProcess || !this.connected) {
+    const bridgeProcess = this.bridgeProcess;
+    const stdin = bridgeProcess?.stdin;
+    if (
+      !bridgeProcess
+      || !this.connected
+      || !stdin
+      || stdin.destroyed
+      || stdin.writableEnded
+      || !stdin.writable
+    ) {
+      this.connected = false;
       throw new ProtocolError(`Cannot send ${packet.name} because the bot is not connected`);
     }
     this.recordPacket("out", packet);
-    this.bridgeProcess.stdin.write(encodeFramedPacket(packet, "toServer"));
+    try {
+      stdin.write(encodeFramedPacket(packet, "toServer"));
+    } catch (error) {
+      this.connected = false;
+      const message = error instanceof Error ? error.message : String(error);
+      throw new ProtocolError(`Cannot send ${packet.name} because the transport is closing: ${message}`);
+    }
   }
 
   chat(message: string): void {
@@ -948,11 +1031,20 @@ export class HytaleBot extends EventEmitter {
       case "ViewRadius":
         this.handleViewRadius(packet as ViewRadiusPacket);
         return;
+      case "AddToServerPlayerList":
+        this.handleServerPlayerListEntry(packet as RawPacket);
+        return;
       case "SetClientId":
         this.handleSetClientId(packet as SetClientIdPacket);
         return;
       case "JoinWorld":
         this.handleJoinWorld(packet as JoinWorldPacket);
+        return;
+      case "WorldLoadFinished":
+        this.handleWorldLoadFinished(packet);
+        return;
+      case "ServerDisconnect":
+        this.handleServerDisconnect(packet);
         return;
       case "Ping":
         this.handlePing(packet as PingPacket);
@@ -987,6 +1079,30 @@ export class HytaleBot extends EventEmitter {
       default:
         return;
     }
+  }
+
+  private handleServerPlayerListEntry(packet: RawPacket): void {
+    if (packet.structured !== false) {
+      return;
+    }
+    const uuid = this.connectPacket.uuid;
+    if (!uuid || !packet.payload) {
+      return;
+    }
+    const payload = packet.payload;
+    const uuidBytes = Buffer.from(uuid.replaceAll("-", ""), "hex");
+    const uuidOffset = payload.indexOf(uuidBytes);
+    if (uuidOffset <= 0) {
+      return;
+    }
+    const candidateId = payload.readUInt8(uuidOffset - 1);
+    if (!Number.isFinite(candidateId) || candidateId <= 0) {
+      return;
+    }
+    if (this.clientId != null) {
+      return;
+    }
+    this.handleSetClientId({ name: "SetClientId", clientId: candidateId });
   }
 
   private async handleAuthGrant(packet: AuthGrantPacket): Promise<void> {
@@ -1053,27 +1169,61 @@ export class HytaleBot extends EventEmitter {
     const readyPacket: ClientReadyPacket = {
       name: "ClientReady",
       readyForChunks: true,
-      readyForGameplay: this.clientId != null
+      readyForGameplay: false
     };
     this.sendPacket(readyPacket);
-    if (this.clientId != null) {
-      queueMicrotask(() => {
-        if (!this.connected) {
-          return;
-        }
-        this.sendPacket({
-          name: "ClientReady",
-          readyForChunks: true,
-          readyForGameplay: true
-        });
+    if (this.worldLoadFinished) {
+      this.sendPacket({
+        name: "ClientReady",
+        readyForChunks: true,
+        readyForGameplay: true
       });
+      this.startHeartbeat();
     }
     this.emit("worldJoin", packet);
+  }
+
+  private handleWorldLoadFinished(packet: DecodedPacket): void {
+    this.worldLoadFinished = true;
+    this.emit("worldLoadFinished", packet);
+    if (!this.worldJoined || !this.connected) {
+      return;
+    }
+    this.sendPacket({
+      name: "ClientReady",
+      readyForChunks: true,
+      readyForGameplay: true
+    });
+    this.sendPacket({ name: "LoadHotbar", mode: 0 });
+    this.sendPacket(this.createMovementPacket());
+    this.startHeartbeat();
+  }
+
+  private handleServerDisconnect(packet: DecodedPacket): void {
+    const reason =
+      typeof (packet as { reason?: unknown }).reason === "string"
+        ? (packet as { reason: string }).reason
+        : typeof (packet as { message?: unknown }).message === "string"
+          ? (packet as { message: string }).message
+          : null;
+    const packetJson = (() => {
+      try {
+        return JSON.stringify(packet);
+      } catch {
+        return "[unserializable]";
+      }
+    })();
+    const message = reason ? `ServerDisconnect: ${reason}` : `ServerDisconnect: ${packetJson}`;
+    this.serverMessages.push(message);
+    this.emit("serverMessage", message);
+    this.recordError(new Error(message));
+    this.emit("disconnect", packet);
   }
 
   private beginWorldTransition(packet: JoinWorldPacket): void {
     this.stopHeartbeat();
     this.worldActive = false;
+    this.worldLoadFinished = false;
     this.currentPosition = null;
     this.currentBodyOrientation = { yaw: 0, pitch: 0, roll: 0 };
     this.currentLookOrientation = { yaw: 0, pitch: 0, roll: 0 };
@@ -1108,12 +1258,19 @@ export class HytaleBot extends EventEmitter {
   }
 
   private handlePing(packet: PingPacket): void {
+    const stdin = this.bridgeProcess?.stdin;
+    if (!this.connected || !stdin || stdin.destroyed || stdin.writableEnded || !stdin.writable) {
+      return;
+    }
     const raw: PongPacket = { name: "Pong", id: packet.id, time: packet.time ?? null, type: "Raw", packetQueueSize: 0 };
     const direct: PongPacket = { name: "Pong", id: packet.id, time: packet.time ?? null, type: "Direct", packetQueueSize: 0 };
     const tick: PongPacket = { name: "Pong", id: packet.id, time: packet.time ?? null, type: "Tick", packetQueueSize: 0 };
-    this.sendPacket(raw);
-    this.sendPacket(direct);
-    this.sendPacket(tick);
+    try {
+      this.sendPacket(raw);
+      this.sendPacket(direct);
+      this.sendPacket(tick);
+    } catch {
+    }
   }
 
   private handleTeleport(packet: ClientTeleportPacket): void {
@@ -1175,7 +1332,11 @@ export class HytaleBot extends EventEmitter {
           this.worldActive = true;
           this.emit("worldActivity", packet.name);
         }
-        if (packet.name === "ClientTeleport" || packet.name === "EntityUpdates" || packet.name === "SetGameMode") {
+        if (
+          packet.name === "ClientTeleport"
+          || packet.name === "EntityUpdates"
+          || packet.name === "SetGameMode"
+        ) {
           this.startHeartbeat();
         }
         return;
@@ -1207,10 +1368,8 @@ export class HytaleBot extends EventEmitter {
 
   private handleServerMessage(packet: ServerMessagePacket | RawPacket): void {
     if ("structured" in packet && packet.structured === false) {
-      const decodeHint = packet.decodeError ? `decodeError=${packet.decodeError}` : "raw";
-      const message = `[server message ${decodeHint}]`;
-      this.serverMessages.push(message);
-      this.emit("serverMessage", message);
+      const decodeHint = packet.decodeError ? `ServerMessage decode skipped: ${packet.decodeError}` : "ServerMessage decode skipped: raw packet";
+      this.recordError(new Error(decodeHint));
       return;
     }
     const message = formattedMessageToPlainText((packet as ServerMessagePacket).message);
@@ -1704,7 +1863,7 @@ export class HytaleBot extends EventEmitter {
   private createMovementPacket(update: Partial<ClientMovementPacket> = {}): ClientMovementPacket {
     return {
       name: "ClientMovement",
-      movementStates: update.movementStates ?? createDefaultMovementStates(),
+      movementStates: update.movementStates ?? createDefaultMovementStates({ idle: true, onGround: true }),
       relativePosition: update.relativePosition ?? null,
       absolutePosition: update.absolutePosition ?? this.currentPosition,
       bodyOrientation: update.bodyOrientation ?? this.currentBodyOrientation,
@@ -1723,6 +1882,9 @@ export class HytaleBot extends EventEmitter {
     }
     this.heartbeatTimer = setInterval(() => {
       if (!this.connected) {
+        return;
+      }
+      if (!this.currentPosition) {
         return;
       }
       this.sendPacket(this.createMovementPacket());
