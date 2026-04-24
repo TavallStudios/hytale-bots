@@ -305,6 +305,11 @@ export interface RequestAssetsPacket {
   readonly assets?: readonly Asset[] | null;
 }
 
+export interface LoadHotbarPacket {
+  readonly name: "LoadHotbar";
+  readonly mode: number;
+}
+
 export interface WorldSettingsPacket {
   readonly name: "WorldSettings";
   readonly worldHeight: number;
@@ -438,6 +443,7 @@ export type StructuredPacket =
   | PingPacket
   | PongPacket
   | RequestAssetsPacket
+  | LoadHotbarPacket
   | WorldSettingsPacket
   | ViewRadiusPacket
   | PlayerOptionsPacket

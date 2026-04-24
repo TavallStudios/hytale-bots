@@ -42,6 +42,7 @@ import type {
   PlayerOptionsPacket,
   PongPacket,
   RequestAssetsPacket,
+  LoadHotbarPacket,
   ServerAuthTokenPacket,
   ServerMessagePacket,
   SetClientIdPacket,
@@ -339,6 +340,14 @@ export function encodeRequestAssetsPacket(packet: RequestAssetsPacket): Buffer {
     writeVarInt(writer, packet.assets.length);
     packet.assets.forEach((asset) => writeAsset(writer, asset));
   }
+  return writer.toBuffer();
+}
+
+export const decodeLoadHotbarPacket = (buffer: Buffer): LoadHotbarPacket => ({ name: "LoadHotbar", mode: readUInt8(buffer, 0) });
+
+export function encodeLoadHotbarPacket(packet: LoadHotbarPacket): Buffer {
+  const writer = new BufferWriter(1);
+  writer.writeUInt8(packet.mode);
   return writer.toBuffer();
 }
 

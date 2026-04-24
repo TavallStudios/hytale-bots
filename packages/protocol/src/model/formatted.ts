@@ -274,9 +274,5 @@ export function formattedMessageToPlainText(message: FormattedMessage | null | u
     return fallbackParts.join(" ").trim();
   }
 
-  try {
-    return JSON.stringify(message);
-  } catch {
-    return "";
-  }
+  return "";
 }

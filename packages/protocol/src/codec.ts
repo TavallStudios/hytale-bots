@@ -23,6 +23,7 @@ import {
   decodePlayerOptionsPacket,
   decodePongPacket,
   decodeRequestAssetsPacket,
+  decodeLoadHotbarPacket,
   decodeServerAuthTokenPacket,
   decodeServerMessagePacket,
   decodeSetClientIdPacket,
@@ -44,6 +45,7 @@ import {
   encodePlayerOptionsPacket,
   encodePongPacket,
   encodeRequestAssetsPacket,
+  encodeLoadHotbarPacket,
   encodeServerAuthTokenPacket,
   encodeServerMessagePacket,
   encodeSetClientIdPacket,
@@ -64,6 +66,7 @@ const STRUCTURED_PACKET_NAMES = new Set<string>([
   "Ping",
   "Pong",
   "RequestAssets",
+  "LoadHotbar",
   "WorldSettings",
   "ViewRadius",
   "PlayerOptions",
@@ -163,6 +166,7 @@ function decodeStructuredPacket(name: string, payload: Buffer): StructuredPacket
     case "Ping": return decodePingPacket(payload);
     case "Pong": return decodePongPacket(payload);
     case "RequestAssets": return decodeRequestAssetsPacket(payload);
+    case "LoadHotbar": return decodeLoadHotbarPacket(payload);
     case "WorldSettings": return decodeWorldSettingsPacket(payload);
     case "ViewRadius": return decodeViewRadiusPacket(payload);
     case "PlayerOptions": return decodePlayerOptionsPacket(payload);
@@ -194,6 +198,7 @@ function encodeStructuredPacket(packet: StructuredPacket): Buffer {
     case "Ping": return encodePingPacket(packet);
     case "Pong": return encodePongPacket(packet);
     case "RequestAssets": return encodeRequestAssetsPacket(packet);
+    case "LoadHotbar": return encodeLoadHotbarPacket(packet);
     case "WorldSettings": return encodeWorldSettingsPacket(packet);
     case "ViewRadius": return encodeViewRadiusPacket(packet);
     case "PlayerOptions": return encodePlayerOptionsPacket(packet);
