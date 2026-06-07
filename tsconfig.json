@@ -1,0 +1,17 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/protocol"
+    },
+    {
+      "path": "./packages/client"
+    },
+    {
+      "path": "./packages/scenario"
+    },
+    {
+      "path": "./apps/cli"
+    }
+  ]
+}

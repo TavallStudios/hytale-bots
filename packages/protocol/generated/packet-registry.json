@@ -1,0 +1,2802 @@
+[
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 0,
+    "name": "Connect",
+    "type": "Connect",
+    "fixedBlockSize": 46,
+    "maxSize": 38013,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 1,
+    "name": "ClientDisconnect",
+    "type": "ClientDisconnect",
+    "fixedBlockSize": 2,
+    "maxSize": 2,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 2,
+    "name": "ServerDisconnect",
+    "type": "ServerDisconnect",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 3,
+    "name": "Ping",
+    "type": "Ping",
+    "fixedBlockSize": 29,
+    "maxSize": 29,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 4,
+    "name": "Pong",
+    "type": "Pong",
+    "fixedBlockSize": 20,
+    "maxSize": 20,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 11,
+    "name": "AuthGrant",
+    "type": "AuthGrant",
+    "fixedBlockSize": 1,
+    "maxSize": 49171,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 12,
+    "name": "AuthToken",
+    "type": "AuthToken",
+    "fixedBlockSize": 1,
+    "maxSize": 49171,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 13,
+    "name": "ServerAuthToken",
+    "type": "ServerAuthToken",
+    "fixedBlockSize": 1,
+    "maxSize": 32851,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 14,
+    "name": "ConnectAccept",
+    "type": "ConnectAccept",
+    "fixedBlockSize": 1,
+    "maxSize": 70,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 15,
+    "name": "PasswordResponse",
+    "type": "PasswordResponse",
+    "fixedBlockSize": 1,
+    "maxSize": 70,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 16,
+    "name": "PasswordAccepted",
+    "type": "PasswordAccepted",
+    "fixedBlockSize": 0,
+    "maxSize": 0,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 17,
+    "name": "PasswordRejected",
+    "type": "PasswordRejected",
+    "fixedBlockSize": 5,
+    "maxSize": 74,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 18,
+    "name": "ClientReferral",
+    "type": "ClientReferral",
+    "fixedBlockSize": 1,
+    "maxSize": 5141,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 20,
+    "name": "WorldSettings",
+    "type": "WorldSettings",
+    "fixedBlockSize": 5,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 21,
+    "name": "WorldLoadProgress",
+    "type": "WorldLoadProgress",
+    "fixedBlockSize": 9,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 22,
+    "name": "WorldLoadFinished",
+    "type": "WorldLoadFinished",
+    "fixedBlockSize": 0,
+    "maxSize": 0,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 23,
+    "name": "RequestAssets",
+    "type": "RequestAssets",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 24,
+    "name": "AssetInitialize",
+    "type": "AssetInitialize",
+    "fixedBlockSize": 4,
+    "maxSize": 2121,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 25,
+    "name": "AssetPart",
+    "type": "AssetPart",
+    "fixedBlockSize": 1,
+    "maxSize": 4096006,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 26,
+    "name": "AssetFinalize",
+    "type": "AssetFinalize",
+    "fixedBlockSize": 0,
+    "maxSize": 0,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 27,
+    "name": "RemoveAssets",
+    "type": "RemoveAssets",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 28,
+    "name": "RequestCommonAssetsRebuild",
+    "type": "RequestCommonAssetsRebuild",
+    "fixedBlockSize": 0,
+    "maxSize": 0,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 29,
+    "name": "SetUpdateRate",
+    "type": "SetUpdateRate",
+    "fixedBlockSize": 4,
+    "maxSize": 4,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 30,
+    "name": "SetTimeDilation",
+    "type": "SetTimeDilation",
+    "fixedBlockSize": 4,
+    "maxSize": 4,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 31,
+    "name": "UpdateFeatures",
+    "type": "UpdateFeatures",
+    "fixedBlockSize": 1,
+    "maxSize": 8192006,
+    "compressed": false
+  },
+  {
+    "direction": "Both",
+    "channel": "Default",
+    "id": 32,
+    "name": "ViewRadius",
+    "type": "ViewRadius",
+    "fixedBlockSize": 4,
+    "maxSize": 4,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 33,
+    "name": "PlayerOptions",
+    "type": "PlayerOptions",
+    "fixedBlockSize": 1,
+    "maxSize": 327680184,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 34,
+    "name": "ServerTags",
+    "type": "ServerTags",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 40,
+    "name": "UpdateBlockTypes",
+    "type": "UpdateBlockTypes",
+    "fixedBlockSize": 10,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 41,
+    "name": "UpdateBlockHitboxes",
+    "type": "UpdateBlockHitboxes",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 42,
+    "name": "UpdateBlockSoundSets",
+    "type": "UpdateBlockSoundSets",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 43,
+    "name": "UpdateItemSoundSets",
+    "type": "UpdateItemSoundSets",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 44,
+    "name": "UpdateBlockParticleSets",
+    "type": "UpdateBlockParticleSets",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 45,
+    "name": "UpdateBlockBreakingDecals",
+    "type": "UpdateBlockBreakingDecals",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 46,
+    "name": "UpdateBlockSets",
+    "type": "UpdateBlockSets",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 47,
+    "name": "UpdateWeathers",
+    "type": "UpdateWeathers",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 48,
+    "name": "UpdateTrails",
+    "type": "UpdateTrails",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 49,
+    "name": "UpdateParticleSystems",
+    "type": "UpdateParticleSystems",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 50,
+    "name": "UpdateParticleSpawners",
+    "type": "UpdateParticleSpawners",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 51,
+    "name": "UpdateEntityEffects",
+    "type": "UpdateEntityEffects",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 52,
+    "name": "UpdateItemPlayerAnimations",
+    "type": "UpdateItemPlayerAnimations",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 53,
+    "name": "UpdateModelvfxs",
+    "type": "UpdateModelvfxs",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 54,
+    "name": "UpdateItems",
+    "type": "UpdateItems",
+    "fixedBlockSize": 4,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 55,
+    "name": "UpdateItemQualities",
+    "type": "UpdateItemQualities",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 56,
+    "name": "UpdateItemCategories",
+    "type": "UpdateItemCategories",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 57,
+    "name": "UpdateItemReticles",
+    "type": "UpdateItemReticles",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 58,
+    "name": "UpdateFieldcraftCategories",
+    "type": "UpdateFieldcraftCategories",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 59,
+    "name": "UpdateResourceTypes",
+    "type": "UpdateResourceTypes",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 60,
+    "name": "UpdateRecipes",
+    "type": "UpdateRecipes",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 61,
+    "name": "UpdateEnvironments",
+    "type": "UpdateEnvironments",
+    "fixedBlockSize": 7,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 62,
+    "name": "UpdateAmbienceFX",
+    "type": "UpdateAmbienceFX",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 63,
+    "name": "UpdateFluidFX",
+    "type": "UpdateFluidFX",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 64,
+    "name": "UpdateTranslations",
+    "type": "UpdateTranslations",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 65,
+    "name": "UpdateSoundEvents",
+    "type": "UpdateSoundEvents",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 66,
+    "name": "UpdateInteractions",
+    "type": "UpdateInteractions",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 67,
+    "name": "UpdateRootInteractions",
+    "type": "UpdateRootInteractions",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 68,
+    "name": "UpdateUnarmedInteractions",
+    "type": "UpdateUnarmedInteractions",
+    "fixedBlockSize": 2,
+    "maxSize": 20480007,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 69,
+    "name": "TrackOrUpdateObjective",
+    "type": "TrackOrUpdateObjective",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 70,
+    "name": "UntrackObjective",
+    "type": "UntrackObjective",
+    "fixedBlockSize": 16,
+    "maxSize": 16,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 71,
+    "name": "UpdateObjectiveTask",
+    "type": "UpdateObjectiveTask",
+    "fixedBlockSize": 21,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 72,
+    "name": "UpdateEntityStatTypes",
+    "type": "UpdateEntityStatTypes",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 73,
+    "name": "UpdateEntityUIComponents",
+    "type": "UpdateEntityUIComponents",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 74,
+    "name": "UpdateHitboxCollisionConfig",
+    "type": "UpdateHitboxCollisionConfig",
+    "fixedBlockSize": 6,
+    "maxSize": 36864011,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 75,
+    "name": "UpdateRepulsionConfig",
+    "type": "UpdateRepulsionConfig",
+    "fixedBlockSize": 6,
+    "maxSize": 65536011,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 76,
+    "name": "UpdateViewBobbing",
+    "type": "UpdateViewBobbing",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 77,
+    "name": "UpdateCameraShake",
+    "type": "UpdateCameraShake",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 78,
+    "name": "UpdateBlockGroups",
+    "type": "UpdateBlockGroups",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 79,
+    "name": "UpdateSoundSets",
+    "type": "UpdateSoundSets",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 80,
+    "name": "UpdateAudioCategories",
+    "type": "UpdateAudioCategories",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 81,
+    "name": "UpdateReverbEffects",
+    "type": "UpdateReverbEffects",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 82,
+    "name": "UpdateEqualizerEffects",
+    "type": "UpdateEqualizerEffects",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 83,
+    "name": "UpdateFluids",
+    "type": "UpdateFluids",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 84,
+    "name": "UpdateTagPatterns",
+    "type": "UpdateTagPatterns",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 85,
+    "name": "UpdateProjectileConfigs",
+    "type": "UpdateProjectileConfigs",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 86,
+    "name": "UpdateEmotes",
+    "type": "UpdateEmotes",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 100,
+    "name": "SetClientId",
+    "type": "SetClientId",
+    "fixedBlockSize": 4,
+    "maxSize": 4,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 101,
+    "name": "SetGameMode",
+    "type": "SetGameMode",
+    "fixedBlockSize": 1,
+    "maxSize": 1,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 102,
+    "name": "SetMovementStates",
+    "type": "SetMovementStates",
+    "fixedBlockSize": 2,
+    "maxSize": 2,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 103,
+    "name": "SetBlockPlacementOverride",
+    "type": "SetBlockPlacementOverride",
+    "fixedBlockSize": 1,
+    "maxSize": 1,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 104,
+    "name": "JoinWorld",
+    "type": "JoinWorld",
+    "fixedBlockSize": 18,
+    "maxSize": 18,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 105,
+    "name": "ClientReady",
+    "type": "ClientReady",
+    "fixedBlockSize": 2,
+    "maxSize": 2,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 106,
+    "name": "LoadHotbar",
+    "type": "LoadHotbar",
+    "fixedBlockSize": 1,
+    "maxSize": 1,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 107,
+    "name": "SaveHotbar",
+    "type": "SaveHotbar",
+    "fixedBlockSize": 1,
+    "maxSize": 1,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 108,
+    "name": "ClientMovement",
+    "type": "ClientMovement",
+    "fixedBlockSize": 155,
+    "maxSize": 155,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 109,
+    "name": "ClientTeleport",
+    "type": "ClientTeleport",
+    "fixedBlockSize": 52,
+    "maxSize": 52,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 110,
+    "name": "UpdateMovementSettings",
+    "type": "UpdateMovementSettings",
+    "fixedBlockSize": 252,
+    "maxSize": 252,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 111,
+    "name": "MouseInteraction",
+    "type": "MouseInteraction",
+    "fixedBlockSize": 44,
+    "maxSize": 20480071,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 112,
+    "name": "DamageInfo",
+    "type": "DamageInfo",
+    "fixedBlockSize": 29,
+    "maxSize": 32768048,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 113,
+    "name": "ReticleEvent",
+    "type": "ReticleEvent",
+    "fixedBlockSize": 4,
+    "maxSize": 4,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 114,
+    "name": "DisplayDebug",
+    "type": "DisplayDebug",
+    "fixedBlockSize": 23,
+    "maxSize": 32768041,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 115,
+    "name": "ClearDebugShapes",
+    "type": "ClearDebugShapes",
+    "fixedBlockSize": 0,
+    "maxSize": 0,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 116,
+    "name": "SyncPlayerPreferences",
+    "type": "SyncPlayerPreferences",
+    "fixedBlockSize": 12,
+    "maxSize": 12,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 117,
+    "name": "ClientPlaceBlock",
+    "type": "ClientPlaceBlock",
+    "fixedBlockSize": 21,
+    "maxSize": 21,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 118,
+    "name": "UpdateMemoriesFeatureStatus",
+    "type": "UpdateMemoriesFeatureStatus",
+    "fixedBlockSize": 1,
+    "maxSize": 1,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 119,
+    "name": "RemoveMapMarker",
+    "type": "RemoveMapMarker",
+    "fixedBlockSize": 1,
+    "maxSize": 16384006,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Chunks",
+    "id": 131,
+    "name": "SetChunk",
+    "type": "SetChunk",
+    "fixedBlockSize": 13,
+    "maxSize": 12288040,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Chunks",
+    "id": 132,
+    "name": "SetChunkHeightmap",
+    "type": "SetChunkHeightmap",
+    "fixedBlockSize": 9,
+    "maxSize": 4096014,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Chunks",
+    "id": 133,
+    "name": "SetChunkTintmap",
+    "type": "SetChunkTintmap",
+    "fixedBlockSize": 9,
+    "maxSize": 4096014,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Chunks",
+    "id": 134,
+    "name": "SetChunkEnvironments",
+    "type": "SetChunkEnvironments",
+    "fixedBlockSize": 9,
+    "maxSize": 4096014,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Chunks",
+    "id": 135,
+    "name": "UnloadChunk",
+    "type": "UnloadChunk",
+    "fixedBlockSize": 8,
+    "maxSize": 8,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Chunks",
+    "id": 136,
+    "name": "SetFluids",
+    "type": "SetFluids",
+    "fixedBlockSize": 13,
+    "maxSize": 4096018,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Chunks",
+    "id": 140,
+    "name": "ServerSetBlock",
+    "type": "ServerSetBlock",
+    "fixedBlockSize": 19,
+    "maxSize": 19,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Chunks",
+    "id": 141,
+    "name": "ServerSetBlocks",
+    "type": "ServerSetBlocks",
+    "fixedBlockSize": 12,
+    "maxSize": 36864017,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Chunks",
+    "id": 142,
+    "name": "ServerSetFluid",
+    "type": "ServerSetFluid",
+    "fixedBlockSize": 17,
+    "maxSize": 17,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Chunks",
+    "id": 143,
+    "name": "ServerSetFluids",
+    "type": "ServerSetFluids",
+    "fixedBlockSize": 12,
+    "maxSize": 28672017,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Chunks",
+    "id": 144,
+    "name": "UpdateBlockDamage",
+    "type": "UpdateBlockDamage",
+    "fixedBlockSize": 21,
+    "maxSize": 21,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 145,
+    "name": "UpdateTimeSettings",
+    "type": "UpdateTimeSettings",
+    "fixedBlockSize": 10,
+    "maxSize": 10,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 146,
+    "name": "UpdateTime",
+    "type": "UpdateTime",
+    "fixedBlockSize": 13,
+    "maxSize": 13,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 147,
+    "name": "UpdateEditorTimeOverride",
+    "type": "UpdateEditorTimeOverride",
+    "fixedBlockSize": 14,
+    "maxSize": 14,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 148,
+    "name": "ClearEditorTimeOverride",
+    "type": "ClearEditorTimeOverride",
+    "fixedBlockSize": 0,
+    "maxSize": 0,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 149,
+    "name": "UpdateWeather",
+    "type": "UpdateWeather",
+    "fixedBlockSize": 8,
+    "maxSize": 8,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 150,
+    "name": "UpdateEditorWeatherOverride",
+    "type": "UpdateEditorWeatherOverride",
+    "fixedBlockSize": 4,
+    "maxSize": 4,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 151,
+    "name": "UpdateEnvironmentMusic",
+    "type": "UpdateEnvironmentMusic",
+    "fixedBlockSize": 4,
+    "maxSize": 4,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 152,
+    "name": "SpawnParticleSystem",
+    "type": "SpawnParticleSystem",
+    "fixedBlockSize": 44,
+    "maxSize": 16384049,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 153,
+    "name": "SpawnBlockParticleSystem",
+    "type": "SpawnBlockParticleSystem",
+    "fixedBlockSize": 30,
+    "maxSize": 30,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 154,
+    "name": "PlaySoundEvent2D",
+    "type": "PlaySoundEvent2D",
+    "fixedBlockSize": 13,
+    "maxSize": 13,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 155,
+    "name": "PlaySoundEvent3D",
+    "type": "PlaySoundEvent3D",
+    "fixedBlockSize": 38,
+    "maxSize": 38,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 156,
+    "name": "PlaySoundEventEntity",
+    "type": "PlaySoundEventEntity",
+    "fixedBlockSize": 16,
+    "maxSize": 16,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 157,
+    "name": "UpdateSleepState",
+    "type": "UpdateSleepState",
+    "fixedBlockSize": 36,
+    "maxSize": 65536050,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 158,
+    "name": "SetPaused",
+    "type": "SetPaused",
+    "fixedBlockSize": 1,
+    "maxSize": 1,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 159,
+    "name": "ServerSetPaused",
+    "type": "ServerSetPaused",
+    "fixedBlockSize": 1,
+    "maxSize": 1,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 160,
+    "name": "SetEntitySeed",
+    "type": "SetEntitySeed",
+    "fixedBlockSize": 4,
+    "maxSize": 4,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 161,
+    "name": "EntityUpdates",
+    "type": "EntityUpdates",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 162,
+    "name": "PlayAnimation",
+    "type": "PlayAnimation",
+    "fixedBlockSize": 6,
+    "maxSize": 32768024,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 163,
+    "name": "ChangeVelocity",
+    "type": "ChangeVelocity",
+    "fixedBlockSize": 35,
+    "maxSize": 35,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 164,
+    "name": "ApplyKnockback",
+    "type": "ApplyKnockback",
+    "fixedBlockSize": 38,
+    "maxSize": 38,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 165,
+    "name": "SpawnModelParticles",
+    "type": "SpawnModelParticles",
+    "fixedBlockSize": 5,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 166,
+    "name": "MountMovement",
+    "type": "MountMovement",
+    "fixedBlockSize": 60,
+    "maxSize": 60,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 167,
+    "name": "PlayEmote",
+    "type": "PlayEmote",
+    "fixedBlockSize": 1,
+    "maxSize": 16384006,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 170,
+    "name": "UpdatePlayerInventory",
+    "type": "UpdatePlayerInventory",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 171,
+    "name": "SetCreativeItem",
+    "type": "SetCreativeItem",
+    "fixedBlockSize": 9,
+    "maxSize": 16384019,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 172,
+    "name": "DropCreativeItem",
+    "type": "DropCreativeItem",
+    "fixedBlockSize": 0,
+    "maxSize": 16384010,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 173,
+    "name": "SmartGiveCreativeItem",
+    "type": "SmartGiveCreativeItem",
+    "fixedBlockSize": 1,
+    "maxSize": 16384011,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 174,
+    "name": "DropItemStack",
+    "type": "DropItemStack",
+    "fixedBlockSize": 12,
+    "maxSize": 12,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 175,
+    "name": "MoveItemStack",
+    "type": "MoveItemStack",
+    "fixedBlockSize": 20,
+    "maxSize": 20,
+    "compressed": false
+  },
+  {
+    "direction": "Both",
+    "channel": "Default",
+    "id": 176,
+    "name": "SmartMoveItemStack",
+    "type": "SmartMoveItemStack",
+    "fixedBlockSize": 13,
+    "maxSize": 13,
+    "compressed": false
+  },
+  {
+    "direction": "Both",
+    "channel": "Default",
+    "id": 177,
+    "name": "SetActiveSlot",
+    "type": "SetActiveSlot",
+    "fixedBlockSize": 8,
+    "maxSize": 8,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 178,
+    "name": "SwitchHotbarBlockSet",
+    "type": "SwitchHotbarBlockSet",
+    "fixedBlockSize": 1,
+    "maxSize": 16384006,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 179,
+    "name": "InventoryAction",
+    "type": "InventoryAction",
+    "fixedBlockSize": 6,
+    "maxSize": 6,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 200,
+    "name": "OpenWindow",
+    "type": "OpenWindow",
+    "fixedBlockSize": 6,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 201,
+    "name": "UpdateWindow",
+    "type": "UpdateWindow",
+    "fixedBlockSize": 5,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "Both",
+    "channel": "Default",
+    "id": 202,
+    "name": "CloseWindow",
+    "type": "CloseWindow",
+    "fixedBlockSize": 4,
+    "maxSize": 4,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 203,
+    "name": "SendWindowAction",
+    "type": "SendWindowAction",
+    "fixedBlockSize": 4,
+    "maxSize": 32768027,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 204,
+    "name": "ClientOpenWindow",
+    "type": "ClientOpenWindow",
+    "fixedBlockSize": 1,
+    "maxSize": 1,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 210,
+    "name": "ServerMessage",
+    "type": "ServerMessage",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 211,
+    "name": "ChatMessage",
+    "type": "ChatMessage",
+    "fixedBlockSize": 1,
+    "maxSize": 1026,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 212,
+    "name": "Notification",
+    "type": "Notification",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 213,
+    "name": "KillFeedMessage",
+    "type": "KillFeedMessage",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 214,
+    "name": "ShowEventTitle",
+    "type": "ShowEventTitle",
+    "fixedBlockSize": 14,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 215,
+    "name": "HideEventTitle",
+    "type": "HideEventTitle",
+    "fixedBlockSize": 4,
+    "maxSize": 4,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 216,
+    "name": "SetPage",
+    "type": "SetPage",
+    "fixedBlockSize": 2,
+    "maxSize": 2,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 217,
+    "name": "CustomHud",
+    "type": "CustomHud",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 218,
+    "name": "CustomPage",
+    "type": "CustomPage",
+    "fixedBlockSize": 4,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 219,
+    "name": "CustomPageEvent",
+    "type": "CustomPageEvent",
+    "fixedBlockSize": 2,
+    "maxSize": 16384007,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 222,
+    "name": "EditorBlocksChange",
+    "type": "EditorBlocksChange",
+    "fixedBlockSize": 31,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 223,
+    "name": "ServerInfo",
+    "type": "ServerInfo",
+    "fixedBlockSize": 5,
+    "maxSize": 32769058,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 224,
+    "name": "AddToServerPlayerList",
+    "type": "AddToServerPlayerList",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 225,
+    "name": "RemoveFromServerPlayerList",
+    "type": "RemoveFromServerPlayerList",
+    "fixedBlockSize": 1,
+    "maxSize": 65536006,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 226,
+    "name": "UpdateServerPlayerList",
+    "type": "UpdateServerPlayerList",
+    "fixedBlockSize": 1,
+    "maxSize": 131072006,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 227,
+    "name": "UpdateServerPlayerListPing",
+    "type": "UpdateServerPlayerListPing",
+    "fixedBlockSize": 1,
+    "maxSize": 81920006,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 228,
+    "name": "UpdateKnownRecipes",
+    "type": "UpdateKnownRecipes",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 229,
+    "name": "UpdatePortal",
+    "type": "UpdatePortal",
+    "fixedBlockSize": 6,
+    "maxSize": 16384020,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 230,
+    "name": "UpdateVisibleHudComponents",
+    "type": "UpdateVisibleHudComponents",
+    "fixedBlockSize": 1,
+    "maxSize": 4096006,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 231,
+    "name": "ResetUserInterfaceState",
+    "type": "ResetUserInterfaceState",
+    "fixedBlockSize": 0,
+    "maxSize": 0,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 232,
+    "name": "UpdateLanguage",
+    "type": "UpdateLanguage",
+    "fixedBlockSize": 1,
+    "maxSize": 16384006,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 233,
+    "name": "WorldSavingStatus",
+    "type": "WorldSavingStatus",
+    "fixedBlockSize": 1,
+    "maxSize": 1,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 234,
+    "name": "OpenChatWithCommand",
+    "type": "OpenChatWithCommand",
+    "fixedBlockSize": 1,
+    "maxSize": 16384006,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 235,
+    "name": "UpdateAnchorUI",
+    "type": "UpdateAnchorUI",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 240,
+    "name": "UpdateWorldMapSettings",
+    "type": "UpdateWorldMapSettings",
+    "fixedBlockSize": 20,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "WorldMap",
+    "id": 241,
+    "name": "UpdateWorldMap",
+    "type": "UpdateWorldMap",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "WorldMap",
+    "id": 242,
+    "name": "ClearWorldMap",
+    "type": "ClearWorldMap",
+    "fixedBlockSize": 0,
+    "maxSize": 0,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 243,
+    "name": "UpdateWorldMapVisible",
+    "type": "UpdateWorldMapVisible",
+    "fixedBlockSize": 1,
+    "maxSize": 1,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 244,
+    "name": "TeleportToWorldMapMarker",
+    "type": "TeleportToWorldMapMarker",
+    "fixedBlockSize": 1,
+    "maxSize": 16384006,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 245,
+    "name": "TeleportToWorldMapPosition",
+    "type": "TeleportToWorldMapPosition",
+    "fixedBlockSize": 8,
+    "maxSize": 8,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 246,
+    "name": "CreateUserMarker",
+    "type": "CreateUserMarker",
+    "fixedBlockSize": 13,
+    "maxSize": 32768031,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 250,
+    "name": "RequestServerAccess",
+    "type": "RequestServerAccess",
+    "fixedBlockSize": 3,
+    "maxSize": 3,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 251,
+    "name": "UpdateServerAccess",
+    "type": "UpdateServerAccess",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 252,
+    "name": "SetServerAccess",
+    "type": "SetServerAccess",
+    "fixedBlockSize": 2,
+    "maxSize": 16384007,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 260,
+    "name": "RequestMachinimaActorModel",
+    "type": "RequestMachinimaActorModel",
+    "fixedBlockSize": 1,
+    "maxSize": 49152028,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 261,
+    "name": "SetMachinimaActorModel",
+    "type": "SetMachinimaActorModel",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "Both",
+    "channel": "Default",
+    "id": 262,
+    "name": "UpdateMachinimaScene",
+    "type": "UpdateMachinimaScene",
+    "fixedBlockSize": 6,
+    "maxSize": 36864033,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 280,
+    "name": "SetServerCamera",
+    "type": "SetServerCamera",
+    "fixedBlockSize": 157,
+    "maxSize": 157,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 281,
+    "name": "CameraShakeEffect",
+    "type": "CameraShakeEffect",
+    "fixedBlockSize": 9,
+    "maxSize": 9,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 282,
+    "name": "RequestFlyCameraMode",
+    "type": "RequestFlyCameraMode",
+    "fixedBlockSize": 1,
+    "maxSize": 1,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 283,
+    "name": "SetFlyCameraMode",
+    "type": "SetFlyCameraMode",
+    "fixedBlockSize": 1,
+    "maxSize": 1,
+    "compressed": false
+  },
+  {
+    "direction": "Both",
+    "channel": "Default",
+    "id": 290,
+    "name": "SyncInteractionChains",
+    "type": "SyncInteractionChains",
+    "fixedBlockSize": 0,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 291,
+    "name": "CancelInteractionChain",
+    "type": "CancelInteractionChain",
+    "fixedBlockSize": 5,
+    "maxSize": 1038,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 292,
+    "name": "PlayInteractionFor",
+    "type": "PlayInteractionFor",
+    "fixedBlockSize": 19,
+    "maxSize": 16385065,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 293,
+    "name": "MountNPC",
+    "type": "MountNPC",
+    "fixedBlockSize": 16,
+    "maxSize": 16,
+    "compressed": false
+  },
+  {
+    "direction": "Both",
+    "channel": "Default",
+    "id": 294,
+    "name": "DismountNPC",
+    "type": "DismountNPC",
+    "fixedBlockSize": 0,
+    "maxSize": 0,
+    "compressed": false
+  },
+  {
+    "direction": "Both",
+    "channel": "Default",
+    "id": 300,
+    "name": "FailureReply",
+    "type": "FailureReply",
+    "fixedBlockSize": 5,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "Both",
+    "channel": "Default",
+    "id": 301,
+    "name": "SuccessReply",
+    "type": "SuccessReply",
+    "fixedBlockSize": 5,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 302,
+    "name": "AssetEditorInitialize",
+    "type": "AssetEditorInitialize",
+    "fixedBlockSize": 0,
+    "maxSize": 0,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 303,
+    "name": "AssetEditorAuthorization",
+    "type": "AssetEditorAuthorization",
+    "fixedBlockSize": 1,
+    "maxSize": 1,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 304,
+    "name": "AssetEditorCapabilities",
+    "type": "AssetEditorCapabilities",
+    "fixedBlockSize": 5,
+    "maxSize": 5,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 305,
+    "name": "AssetEditorSetupSchemas",
+    "type": "AssetEditorSetupSchemas",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 306,
+    "name": "AssetEditorSetupAssetTypes",
+    "type": "AssetEditorSetupAssetTypes",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 307,
+    "name": "AssetEditorCreateDirectory",
+    "type": "AssetEditorCreateDirectory",
+    "fixedBlockSize": 5,
+    "maxSize": 32768024,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 308,
+    "name": "AssetEditorDeleteDirectory",
+    "type": "AssetEditorDeleteDirectory",
+    "fixedBlockSize": 5,
+    "maxSize": 32768024,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 309,
+    "name": "AssetEditorRenameDirectory",
+    "type": "AssetEditorRenameDirectory",
+    "fixedBlockSize": 5,
+    "maxSize": 65536051,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 310,
+    "name": "AssetEditorFetchAsset",
+    "type": "AssetEditorFetchAsset",
+    "fixedBlockSize": 6,
+    "maxSize": 32768025,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 311,
+    "name": "AssetEditorFetchJsonAssetWithParents",
+    "type": "AssetEditorFetchJsonAssetWithParents",
+    "fixedBlockSize": 6,
+    "maxSize": 32768025,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 312,
+    "name": "AssetEditorFetchAssetReply",
+    "type": "AssetEditorFetchAssetReply",
+    "fixedBlockSize": 5,
+    "maxSize": 4096010,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 313,
+    "name": "AssetEditorFetchJsonAssetWithParentsReply",
+    "type": "AssetEditorFetchJsonAssetWithParentsReply",
+    "fixedBlockSize": 5,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 314,
+    "name": "AssetEditorAssetPackSetup",
+    "type": "AssetEditorAssetPackSetup",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "Both",
+    "channel": "Default",
+    "id": 315,
+    "name": "AssetEditorUpdateAssetPack",
+    "type": "AssetEditorUpdateAssetPack",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 316,
+    "name": "AssetEditorCreateAssetPack",
+    "type": "AssetEditorCreateAssetPack",
+    "fixedBlockSize": 9,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "Both",
+    "channel": "Default",
+    "id": 317,
+    "name": "AssetEditorDeleteAssetPack",
+    "type": "AssetEditorDeleteAssetPack",
+    "fixedBlockSize": 1,
+    "maxSize": 16384006,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 319,
+    "name": "AssetEditorAssetListSetup",
+    "type": "AssetEditorAssetListSetup",
+    "fixedBlockSize": 4,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 320,
+    "name": "AssetEditorAssetListUpdate",
+    "type": "AssetEditorAssetListUpdate",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 321,
+    "name": "AssetEditorRequestChildrenList",
+    "type": "AssetEditorRequestChildrenList",
+    "fixedBlockSize": 1,
+    "maxSize": 32768020,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 322,
+    "name": "AssetEditorRequestChildrenListReply",
+    "type": "AssetEditorRequestChildrenListReply",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 323,
+    "name": "AssetEditorUpdateJsonAsset",
+    "type": "AssetEditorUpdateJsonAsset",
+    "fixedBlockSize": 9,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 324,
+    "name": "AssetEditorUpdateAsset",
+    "type": "AssetEditorUpdateAsset",
+    "fixedBlockSize": 9,
+    "maxSize": 53248050,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 325,
+    "name": "AssetEditorJsonAssetUpdated",
+    "type": "AssetEditorJsonAssetUpdated",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 326,
+    "name": "AssetEditorAssetUpdated",
+    "type": "AssetEditorAssetUpdated",
+    "fixedBlockSize": 1,
+    "maxSize": 36864033,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 327,
+    "name": "AssetEditorCreateAsset",
+    "type": "AssetEditorCreateAsset",
+    "fixedBlockSize": 10,
+    "maxSize": 53248051,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 328,
+    "name": "AssetEditorRenameAsset",
+    "type": "AssetEditorRenameAsset",
+    "fixedBlockSize": 5,
+    "maxSize": 65536051,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 329,
+    "name": "AssetEditorDeleteAsset",
+    "type": "AssetEditorDeleteAsset",
+    "fixedBlockSize": 5,
+    "maxSize": 32768024,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 330,
+    "name": "AssetEditorDiscardChanges",
+    "type": "AssetEditorDiscardChanges",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 331,
+    "name": "AssetEditorFetchAutoCompleteData",
+    "type": "AssetEditorFetchAutoCompleteData",
+    "fixedBlockSize": 5,
+    "maxSize": 32768023,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 332,
+    "name": "AssetEditorFetchAutoCompleteDataReply",
+    "type": "AssetEditorFetchAutoCompleteDataReply",
+    "fixedBlockSize": 5,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 333,
+    "name": "AssetEditorRequestDataset",
+    "type": "AssetEditorRequestDataset",
+    "fixedBlockSize": 1,
+    "maxSize": 16384006,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 334,
+    "name": "AssetEditorRequestDatasetReply",
+    "type": "AssetEditorRequestDatasetReply",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 335,
+    "name": "AssetEditorActivateButton",
+    "type": "AssetEditorActivateButton",
+    "fixedBlockSize": 1,
+    "maxSize": 16384006,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 336,
+    "name": "AssetEditorSelectAsset",
+    "type": "AssetEditorSelectAsset",
+    "fixedBlockSize": 1,
+    "maxSize": 32768020,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 337,
+    "name": "AssetEditorPopupNotification",
+    "type": "AssetEditorPopupNotification",
+    "fixedBlockSize": 2,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 338,
+    "name": "AssetEditorFetchLastModifiedAssets",
+    "type": "AssetEditorFetchLastModifiedAssets",
+    "fixedBlockSize": 0,
+    "maxSize": 0,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 339,
+    "name": "AssetEditorLastModifiedAssets",
+    "type": "AssetEditorLastModifiedAssets",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 340,
+    "name": "AssetEditorModifiedAssetsCount",
+    "type": "AssetEditorModifiedAssetsCount",
+    "fixedBlockSize": 4,
+    "maxSize": 4,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 341,
+    "name": "AssetEditorSubscribeModifiedAssetsChanges",
+    "type": "AssetEditorSubscribeModifiedAssetsChanges",
+    "fixedBlockSize": 1,
+    "maxSize": 1,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 342,
+    "name": "AssetEditorExportAssets",
+    "type": "AssetEditorExportAssets",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 343,
+    "name": "AssetEditorExportAssetInitialize",
+    "type": "AssetEditorExportAssetInitialize",
+    "fixedBlockSize": 6,
+    "maxSize": 81920066,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 344,
+    "name": "AssetEditorExportAssetPart",
+    "type": "AssetEditorExportAssetPart",
+    "fixedBlockSize": 1,
+    "maxSize": 4096006,
+    "compressed": true
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 345,
+    "name": "AssetEditorExportAssetFinalize",
+    "type": "AssetEditorExportAssetFinalize",
+    "fixedBlockSize": 0,
+    "maxSize": 0,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 346,
+    "name": "AssetEditorExportDeleteAssets",
+    "type": "AssetEditorExportDeleteAssets",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 347,
+    "name": "AssetEditorExportComplete",
+    "type": "AssetEditorExportComplete",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 349,
+    "name": "AssetEditorUndoChanges",
+    "type": "AssetEditorUndoChanges",
+    "fixedBlockSize": 5,
+    "maxSize": 32768024,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 350,
+    "name": "AssetEditorRedoChanges",
+    "type": "AssetEditorRedoChanges",
+    "fixedBlockSize": 5,
+    "maxSize": 32768024,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 351,
+    "name": "AssetEditorUndoRedoReply",
+    "type": "AssetEditorUndoRedoReply",
+    "fixedBlockSize": 5,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 352,
+    "name": "AssetEditorSetGameTime",
+    "type": "AssetEditorSetGameTime",
+    "fixedBlockSize": 14,
+    "maxSize": 14,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 353,
+    "name": "AssetEditorUpdateSecondsPerGameDay",
+    "type": "AssetEditorUpdateSecondsPerGameDay",
+    "fixedBlockSize": 8,
+    "maxSize": 8,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 354,
+    "name": "AssetEditorUpdateWeatherPreviewLock",
+    "type": "AssetEditorUpdateWeatherPreviewLock",
+    "fixedBlockSize": 1,
+    "maxSize": 1,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 355,
+    "name": "AssetEditorUpdateModelPreview",
+    "type": "AssetEditorUpdateModelPreview",
+    "fixedBlockSize": 30,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 356,
+    "name": "AssetEditorModsDirectories",
+    "type": "AssetEditorModsDirectories",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 360,
+    "name": "UpdateSunSettings",
+    "type": "UpdateSunSettings",
+    "fixedBlockSize": 8,
+    "maxSize": 8,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 361,
+    "name": "UpdatePostFxSettings",
+    "type": "UpdatePostFxSettings",
+    "fixedBlockSize": 20,
+    "maxSize": 20,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 362,
+    "name": "PlaySoundEventLocalPlayer",
+    "type": "PlaySoundEventLocalPlayer",
+    "fixedBlockSize": 17,
+    "maxSize": 17,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 400,
+    "name": "BuilderToolArgUpdate",
+    "type": "BuilderToolArgUpdate",
+    "fixedBlockSize": 13,
+    "maxSize": 32768031,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 401,
+    "name": "BuilderToolEntityAction",
+    "type": "BuilderToolEntityAction",
+    "fixedBlockSize": 5,
+    "maxSize": 5,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 402,
+    "name": "BuilderToolSetEntityTransform",
+    "type": "BuilderToolSetEntityTransform",
+    "fixedBlockSize": 54,
+    "maxSize": 54,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 403,
+    "name": "BuilderToolExtrudeAction",
+    "type": "BuilderToolExtrudeAction",
+    "fixedBlockSize": 24,
+    "maxSize": 24,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 404,
+    "name": "BuilderToolStackArea",
+    "type": "BuilderToolStackArea",
+    "fixedBlockSize": 41,
+    "maxSize": 41,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 405,
+    "name": "BuilderToolSelectionTransform",
+    "type": "BuilderToolSelectionTransform",
+    "fixedBlockSize": 80,
+    "maxSize": 80,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 406,
+    "name": "BuilderToolRotateClipboard",
+    "type": "BuilderToolRotateClipboard",
+    "fixedBlockSize": 5,
+    "maxSize": 5,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 407,
+    "name": "BuilderToolPasteClipboard",
+    "type": "BuilderToolPasteClipboard",
+    "fixedBlockSize": 12,
+    "maxSize": 12,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 408,
+    "name": "BuilderToolSetTransformationModeState",
+    "type": "BuilderToolSetTransformationModeState",
+    "fixedBlockSize": 1,
+    "maxSize": 1,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 409,
+    "name": "BuilderToolSelectionUpdate",
+    "type": "BuilderToolSelectionUpdate",
+    "fixedBlockSize": 24,
+    "maxSize": 24,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 410,
+    "name": "BuilderToolSelectionToolAskForClipboard",
+    "type": "BuilderToolSelectionToolAskForClipboard",
+    "fixedBlockSize": 0,
+    "maxSize": 0,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 411,
+    "name": "BuilderToolSelectionToolReplyWithClipboard",
+    "type": "BuilderToolSelectionToolReplyWithClipboard",
+    "fixedBlockSize": 1,
+    "maxSize": 1677721600,
+    "compressed": true
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 412,
+    "name": "BuilderToolGeneralAction",
+    "type": "BuilderToolGeneralAction",
+    "fixedBlockSize": 1,
+    "maxSize": 1,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 413,
+    "name": "BuilderToolOnUseInteraction",
+    "type": "BuilderToolOnUseInteraction",
+    "fixedBlockSize": 61,
+    "maxSize": 61,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 414,
+    "name": "BuilderToolLineAction",
+    "type": "BuilderToolLineAction",
+    "fixedBlockSize": 24,
+    "maxSize": 24,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 415,
+    "name": "BuilderToolShowAnchor",
+    "type": "BuilderToolShowAnchor",
+    "fixedBlockSize": 12,
+    "maxSize": 12,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 416,
+    "name": "BuilderToolHideAnchors",
+    "type": "BuilderToolHideAnchors",
+    "fixedBlockSize": 0,
+    "maxSize": 0,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 417,
+    "name": "PrefabUnselectPrefab",
+    "type": "PrefabUnselectPrefab",
+    "fixedBlockSize": 0,
+    "maxSize": 0,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 418,
+    "name": "BuilderToolsSetSoundSet",
+    "type": "BuilderToolsSetSoundSet",
+    "fixedBlockSize": 4,
+    "maxSize": 4,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 419,
+    "name": "BuilderToolLaserPointer",
+    "type": "BuilderToolLaserPointer",
+    "fixedBlockSize": 36,
+    "maxSize": 36,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 420,
+    "name": "BuilderToolSetEntityScale",
+    "type": "BuilderToolSetEntityScale",
+    "fixedBlockSize": 8,
+    "maxSize": 8,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 421,
+    "name": "BuilderToolSetEntityPickupEnabled",
+    "type": "BuilderToolSetEntityPickupEnabled",
+    "fixedBlockSize": 5,
+    "maxSize": 5,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 422,
+    "name": "BuilderToolSetEntityLight",
+    "type": "BuilderToolSetEntityLight",
+    "fixedBlockSize": 9,
+    "maxSize": 9,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 423,
+    "name": "BuilderToolSetNPCDebug",
+    "type": "BuilderToolSetNPCDebug",
+    "fixedBlockSize": 5,
+    "maxSize": 5,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 425,
+    "name": "BuilderToolSetEntityCollision",
+    "type": "BuilderToolSetEntityCollision",
+    "fixedBlockSize": 5,
+    "maxSize": 16384010,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 426,
+    "name": "PrefabSetAnchor",
+    "type": "PrefabSetAnchor",
+    "fixedBlockSize": 12,
+    "maxSize": 12,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 427,
+    "name": "BuilderToolResetClipboardRotation",
+    "type": "BuilderToolResetClipboardRotation",
+    "fixedBlockSize": 0,
+    "maxSize": 0,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Voice",
+    "id": 450,
+    "name": "VoiceData",
+    "type": "VoiceData",
+    "fixedBlockSize": 6,
+    "maxSize": 523,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Voice",
+    "id": 451,
+    "name": "RelayedVoiceData",
+    "type": "RelayedVoiceData",
+    "fixedBlockSize": 52,
+    "maxSize": 569,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 452,
+    "name": "VoiceConfig",
+    "type": "VoiceConfig",
+    "fixedBlockSize": 17,
+    "maxSize": 17,
+    "compressed": false
+  },
+  {
+    "direction": "ToServer",
+    "channel": "Default",
+    "id": 460,
+    "name": "StreamOpen",
+    "type": "StreamOpen",
+    "fixedBlockSize": 1,
+    "maxSize": 1,
+    "compressed": false
+  },
+  {
+    "direction": "ToClient",
+    "channel": "Default",
+    "id": 461,
+    "name": "StreamOpenResponse",
+    "type": "StreamOpenResponse",
+    "fixedBlockSize": 3,
+    "maxSize": 16384008,
+    "compressed": false
+  }
+]

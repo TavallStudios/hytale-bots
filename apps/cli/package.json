@@ -1,0 +1,23 @@
+{
+  "name": "@hyrhythm/hytale-sim-cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "hytale-sim": "./dist/index.js"
+  },
+  "dependencies": {
+    "@hyrhythm/hytale-protocol": "file:../../packages/protocol",
+    "@hyrhythm/hytale-scenario": "file:../../packages/scenario"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "scenario:smoke": "tsx ./src/index.ts scenario smoke",
+    "scenario:trace-ui": "tsx ./src/index.ts scenario trace-ui",
+    "scenario:stop": "tsx ./src/index.ts scenario stop",
+    "scenario:close": "tsx ./src/index.ts scenario close",
+    "scenario:stop-close": "tsx ./src/index.ts scenario stop-close",
+    "scenario:connect-only": "tsx ./src/index.ts scenario connect-only",
+    "scenario:listen-only": "tsx ./src/index.ts scenario listen-only"
+  }
+}

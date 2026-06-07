@@ -1,0 +1,28 @@
+{
+  "name": "@hyrhythm/hytale-sim-workspace",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "generate:registry": "node ./scripts/generate-packet-registry.mjs",
+    "build": "tsc -b",
+    "build:refresh-registry": "npm run generate:registry && tsc -b",
+    "test": "tsx --test packages/*/src/**/*.test.ts",
+    "test:refresh-registry": "npm run generate:registry && tsx --test packages/*/src/**/*.test.ts",
+    "scenario:smoke": "node ./apps/cli/dist/index.js scenario smoke",
+    "scenario:trace-ui": "node ./apps/cli/dist/index.js scenario trace-ui",
+    "scenario:stop": "node ./apps/cli/dist/index.js scenario stop",
+    "scenario:close": "node ./apps/cli/dist/index.js scenario close",
+    "scenario:stop-close": "node ./apps/cli/dist/index.js scenario stop-close",
+    "scenario:connect-only": "node ./apps/cli/dist/index.js scenario connect-only",
+    "scenario:listen-only": "node ./apps/cli/dist/index.js scenario listen-only"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.17",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}

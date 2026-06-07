@@ -1,0 +1,11 @@
+export const PROTOCOL_CRC = 1080406952;
+export const PROTOCOL_BUILD = 20;
+export const DEFAULT_HOST = "127.0.0.1";
+export const DEFAULT_PORT = 5520;
+export const DEFAULT_TRANSPORT = "TCP";
+export const DEFAULT_AUTH_MODE = "INSECURE";
+export const DEFAULT_CLIENT_VERSION = "hytale-sim";
+export const CONNECT_USERNAME_MAX_BYTES = 16;
+export const CONNECT_LANGUAGE_MAX_BYTES = 16;
+export const FRAME_HEADER_SIZE = 8;
+export const MAX_FRAME_SIZE = 1_677_721_600;
