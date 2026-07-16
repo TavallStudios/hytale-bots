@@ -32,6 +32,60 @@ export const readCustomPageEventType = (value: number): CustomPageEventType =>
 export const writeCustomPageEventType = (value: CustomPageEventType): number =>
   enumToValue(CUSTOM_PAGE_EVENT_TYPES, value, "CustomPageEventType");
 
+export const MOUSE_BUTTON_TYPES = ["Left", "Middle", "Right", "X1", "X2"] as const;
+export type MouseButtonType = (typeof MOUSE_BUTTON_TYPES)[number];
+export const readMouseButtonType = (value: number): MouseButtonType =>
+  enumFromValue(MOUSE_BUTTON_TYPES, value, "MouseButtonType");
+export const writeMouseButtonType = (value: MouseButtonType): number =>
+  enumToValue(MOUSE_BUTTON_TYPES, value, "MouseButtonType");
+
+export const MOUSE_BUTTON_STATES = ["Pressed", "Released"] as const;
+export type MouseButtonState = (typeof MOUSE_BUTTON_STATES)[number];
+export const readMouseButtonState = (value: number): MouseButtonState =>
+  enumFromValue(MOUSE_BUTTON_STATES, value, "MouseButtonState");
+export const writeMouseButtonState = (value: MouseButtonState): number =>
+  enumToValue(MOUSE_BUTTON_STATES, value, "MouseButtonState");
+
+export const INTERACTION_TYPES = [
+  "Primary",
+  "Secondary",
+  "Ability1",
+  "Ability2",
+  "Ability3",
+  "Use",
+  "Pick",
+  "Pickup",
+  "CollisionEnter",
+  "CollisionLeave",
+  "Collision",
+  "EntityStatEffect",
+  "SwapTo",
+  "SwapFrom",
+  "Death",
+  "Wielding",
+  "ProjectileSpawn",
+  "ProjectileHit",
+  "ProjectileMiss",
+  "ProjectileBounce",
+  "Held",
+  "HeldOffhand",
+  "Equipped",
+  "Dodge",
+  "GameModeSwap"
+] as const;
+export type InteractionType = (typeof INTERACTION_TYPES)[number];
+export const readInteractionType = (value: number): InteractionType =>
+  enumFromValue(INTERACTION_TYPES, value, "InteractionType");
+export const writeInteractionType = (value: InteractionType): number =>
+  enumToValue(INTERACTION_TYPES, value, "InteractionType");
+
+export const INTERACTION_STATES = ["Finished", "Skip", "ItemChanged", "Failed", "NotFinished"] as const;
+export type InteractionState = (typeof INTERACTION_STATES)[number];
+export const readInteractionState = (value: number): InteractionState =>
+  enumFromValue(INTERACTION_STATES, value, "InteractionState");
+export const writeInteractionState = (value: InteractionState): number =>
+  enumToValue(INTERACTION_STATES, value, "InteractionState");
+
 export const CUSTOM_PAGE_LIFETIMES = ["CantClose", "CanDismiss", "CanDismissOrCloseThroughInteraction"] as const;
 export type CustomPageLifetime = (typeof CUSTOM_PAGE_LIFETIMES)[number];
 export const readCustomPageLifetime = (value: number): CustomPageLifetime =>

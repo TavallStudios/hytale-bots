@@ -11,8 +11,8 @@
     }
   },
   "dependencies": {
-    "@hyrhythm/hytale-client": "0.1.0",
-    "@hyrhythm/hytale-protocol": "0.1.0"
+    "@hyrhythm/hytale-client": "file:../client",
+    "@hyrhythm/hytale-protocol": "file:../protocol"
   },
   "scripts": {
     "build": "tsc -b"

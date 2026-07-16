@@ -7,8 +7,8 @@
     "hytale-sim": "./dist/index.js"
   },
   "dependencies": {
-    "@hyrhythm/hytale-protocol": "0.1.0",
-    "@hyrhythm/hytale-scenario": "0.1.0"
+    "@hyrhythm/hytale-protocol": "file:../../packages/protocol",
+    "@hyrhythm/hytale-scenario": "file:../../packages/scenario"
   },
   "scripts": {
     "build": "tsc -b",

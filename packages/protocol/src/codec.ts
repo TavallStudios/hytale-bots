@@ -19,6 +19,7 @@ import {
   decodeCustomPagePacket,
   decodeDisconnectPacket,
   decodeJoinWorldPacket,
+  decodeMouseInteractionPacket,
   decodePingPacket,
   decodePlayerOptionsPacket,
   decodePongPacket,
@@ -26,8 +27,10 @@ import {
   decodeLoadHotbarPacket,
   decodeServerAuthTokenPacket,
   decodeServerMessagePacket,
+  decodeSetActiveSlotPacket,
   decodeSetClientIdPacket,
   decodeSetPagePacket,
+  decodeSyncInteractionChainsPacket,
   decodeViewRadiusPacket,
   decodeWorldSettingsPacket,
   encodeAuthGrantPacket,
@@ -41,6 +44,7 @@ import {
   encodeCustomPagePacket,
   encodeDisconnectPacket,
   encodeJoinWorldPacket,
+  encodeMouseInteractionPacket,
   encodePingPacket,
   encodePlayerOptionsPacket,
   encodePongPacket,
@@ -48,8 +52,10 @@ import {
   encodeLoadHotbarPacket,
   encodeServerAuthTokenPacket,
   encodeServerMessagePacket,
+  encodeSetActiveSlotPacket,
   encodeSetClientIdPacket,
   encodeSetPagePacket,
+  encodeSyncInteractionChainsPacket,
   encodeViewRadiusPacket,
   encodeWorldSettingsPacket
 } from "./packets-core.js";
@@ -71,11 +77,14 @@ const STRUCTURED_PACKET_NAMES = new Set<string>([
   "ViewRadius",
   "PlayerOptions",
   "SetClientId",
+  "SetActiveSlot",
   "JoinWorld",
   "ClientReady",
   "ClientMovement",
   "ClientTeleport",
   "ChatMessage",
+  "MouseInteraction",
+  "SyncInteractionChains",
   "SetPage",
   "CustomPage",
   "CustomPageEvent",
@@ -171,11 +180,14 @@ function decodeStructuredPacket(name: string, payload: Buffer): StructuredPacket
     case "ViewRadius": return decodeViewRadiusPacket(payload);
     case "PlayerOptions": return decodePlayerOptionsPacket(payload);
     case "SetClientId": return decodeSetClientIdPacket(payload);
+    case "SetActiveSlot": return decodeSetActiveSlotPacket(payload);
     case "JoinWorld": return decodeJoinWorldPacket(payload);
     case "ClientReady": return decodeClientReadyPacket(payload);
     case "ClientMovement": return decodeClientMovementPacket(payload);
     case "ClientTeleport": return decodeClientTeleportPacket(payload);
     case "ChatMessage": return decodeChatMessagePacket(payload);
+    case "MouseInteraction": return decodeMouseInteractionPacket(payload);
+    case "SyncInteractionChains": return decodeSyncInteractionChainsPacket(payload);
     case "SetPage": return decodeSetPagePacket(payload);
     case "CustomPage": return decodeCustomPagePacket(payload);
     case "CustomPageEvent": return decodeCustomPageEventPacket(payload);
@@ -203,11 +215,14 @@ function encodeStructuredPacket(packet: StructuredPacket): Buffer {
     case "ViewRadius": return encodeViewRadiusPacket(packet);
     case "PlayerOptions": return encodePlayerOptionsPacket(packet);
     case "SetClientId": return encodeSetClientIdPacket(packet);
+    case "SetActiveSlot": return encodeSetActiveSlotPacket(packet);
     case "JoinWorld": return encodeJoinWorldPacket(packet);
     case "ClientReady": return encodeClientReadyPacket(packet);
     case "ClientMovement": return encodeClientMovementPacket(packet);
     case "ClientTeleport": return encodeClientTeleportPacket(packet);
     case "ChatMessage": return encodeChatMessagePacket(packet);
+    case "MouseInteraction": return encodeMouseInteractionPacket(packet);
+    case "SyncInteractionChains": return encodeSyncInteractionChainsPacket(packet);
     case "SetPage": return encodeSetPagePacket(packet);
     case "CustomPage": return encodeCustomPagePacket(packet);
     case "CustomPageEvent": return encodeCustomPageEventPacket(packet);

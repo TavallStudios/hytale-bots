@@ -35,6 +35,8 @@ import {
   type ItemWithAllMetadata,
   type JoinWorldPacket,
   type MovementStates,
+  type MouseButtonState,
+  type MouseInteractionPacket,
   type PingPacket,
   type PongPacket,
   type Position,
@@ -42,9 +44,11 @@ import {
   type RawPacket,
   type ServerAuthTokenPacket,
   type ServerMessagePacket,
+  type SetActiveSlotPacket,
   type SetClientIdPacket,
   type SetPagePacket,
   type StructuredPacket,
+  type SyncInteractionChainsPacket,
   type UpdateEntityStatTypesPacket,
   type UpdatePlayerInventoryPacket,
   type ViewRadiusPacket,
@@ -123,10 +127,17 @@ export interface InventoryState {
   backpack: InventorySection | null;
 }
 
+export interface ActiveInventorySlots {
+  hotbar: number;
+  utility: number;
+  tools: number;
+}
+
 export interface WorldState {
   readonly entities: Map<number, EntityState>;
   readonly statTypes: Map<number, EntityStatType>;
   readonly inventory: InventoryState;
+  readonly activeSlots: ActiveInventorySlots;
   worldSettings: WorldSettingsPacket | null;
   viewRadius: number | null;
 }
@@ -143,6 +154,11 @@ export interface NearbyEntitySnapshot {
   readonly health: number | null;
 }
 
+export interface EntityRightClickOptions {
+  readonly targetEntityUuid?: string | null;
+  readonly hitLocation?: Position | null;
+}
+
 export interface WorldSnapshot {
   readonly clientId: number | null;
   readonly position: Position | null;
@@ -151,6 +167,7 @@ export interface WorldSnapshot {
   readonly movementStates: MovementStates | null;
   readonly health: number | null;
   readonly inventory: InventoryState;
+  readonly activeSlots: ActiveInventorySlots;
   readonly statValues: readonly StatValueSnapshot[];
   readonly entityCount: number;
   readonly statTypeNames: readonly string[];
@@ -549,7 +566,10 @@ function formatTraceTranscript(
     "WorldLoadFinished",
     "WorldLoadProgress",
     "SetClientId",
+    "SetActiveSlot",
     "ClientTeleport",
+    "MouseInteraction",
+    "SyncInteractionChains",
     "ServerDisconnect",
     "Disconnect",
     "ServerMessage"
@@ -650,6 +670,11 @@ export class HytaleBot extends EventEmitter {
       tools: null,
       backpack: null
     },
+    activeSlots: {
+      hotbar: -1,
+      utility: -1,
+      tools: -1
+    },
     worldSettings: null,
     viewRadius: null
   };
@@ -704,6 +729,7 @@ export class HytaleBot extends EventEmitter {
   private worldJoined = false;
   private worldActive = false;
   private worldLoadFinished = false;
+  private setupHandshakeSent = false;
   private currentWorldUuid: string | null = null;
   private connectPacket: ConnectPacket;
   private clientId: number | null = null;
@@ -711,6 +737,7 @@ export class HytaleBot extends EventEmitter {
   private currentBodyOrientation: Direction = { yaw: 0, pitch: 0, roll: 0 };
   private currentLookOrientation: Direction = { yaw: 0, pitch: 0, roll: 0 };
   private customPageVisible = false;
+  private nextInteractionChainId = 1;
 
   constructor(options: BotOptions) {
     super();
@@ -748,6 +775,7 @@ export class HytaleBot extends EventEmitter {
     this.worldJoined = false;
     this.worldActive = false;
     this.worldLoadFinished = false;
+    this.setupHandshakeSent = false;
     this.currentWorldUuid = null;
     this.clientId = null;
     this.currentPosition = null;
@@ -785,6 +813,7 @@ export class HytaleBot extends EventEmitter {
       this.connected = false;
       this.worldJoined = false;
       this.worldActive = false;
+      this.setupHandshakeSent = false;
       this.currentWorldUuid = null;
       this.clientId = null;
       this.currentPosition = null;
@@ -867,6 +896,10 @@ export class HytaleBot extends EventEmitter {
     this.world.inventory.builderMaterial = null;
     this.world.inventory.tools = null;
     this.world.inventory.backpack = null;
+    this.world.activeSlots.hotbar = -1;
+    this.world.activeSlots.utility = -1;
+    this.world.activeSlots.tools = -1;
+    this.nextInteractionChainId = 1;
     this.world.worldSettings = null;
     this.world.viewRadius = null;
   }
@@ -921,6 +954,16 @@ export class HytaleBot extends EventEmitter {
     this.sendPacket(packet);
   }
 
+  rightClickEntity(entityId: number, options: EntityRightClickOptions | number = {}): void {
+    const activeHotbarSlot = typeof options === "number" ? options : this.world.activeSlots.hotbar;
+    const itemInHandId = this.getInventorySectionItemId(this.world.inventory.hotbar, activeHotbarSlot);
+    this.sendMouseInteraction(entityId, "Pressed", activeHotbarSlot, itemInHandId);
+    if (typeof options !== "number" && options.targetEntityUuid) {
+      this.sendPacket(this.createSecondaryEntityInteractionPacket(entityId, options.targetEntityUuid, options.hitLocation ?? null));
+    }
+    this.sendMouseInteraction(entityId, "Released", activeHotbarSlot, itemInHandId);
+  }
+
   move(update: Partial<ClientMovementPacket> = {}): void {
     if (update.absolutePosition !== undefined) {
       this.currentPosition = update.absolutePosition ?? null;
@@ -934,10 +977,43 @@ export class HytaleBot extends EventEmitter {
     this.sendPacket(this.createMovementPacket(update));
   }
 
+  moveRelative(relativePosition: Position): void {
+    if (this.currentPosition) {
+      this.currentPosition = {
+        x: this.currentPosition.x + relativePosition.x,
+        y: this.currentPosition.y + relativePosition.y,
+        z: this.currentPosition.z + relativePosition.z
+      };
+      if (this.clientId != null) {
+        const entity = this.getOrCreateEntity(this.clientId);
+        entity.position = this.currentPosition;
+        entity.bodyOrientation = this.currentBodyOrientation;
+        entity.lookOrientation = this.currentLookOrientation;
+      }
+    }
+    this.sendPacket(this.createMovementPacket({
+      relativePosition,
+      absolutePosition: null
+    }));
+  }
+
+  assumePosition(position: Position): void {
+    this.currentPosition = position;
+    if (this.clientId != null) {
+      const entity = this.getOrCreateEntity(this.clientId);
+      entity.position = position;
+      entity.bodyOrientation = this.currentBodyOrientation;
+      entity.lookOrientation = this.currentLookOrientation;
+    }
+  }
+
   look(yaw: number, pitch: number, roll = 0): void {
     this.currentBodyOrientation = { yaw, pitch: 0, roll };
     this.currentLookOrientation = { yaw, pitch, roll };
-    this.move();
+    this.sendPacket(this.createMovementPacket({
+      relativePosition: { x: 0, y: 0, z: 0 },
+      absolutePosition: null
+    }));
   }
 
   ackPage(): void {
@@ -950,6 +1026,84 @@ export class HytaleBot extends EventEmitter {
       type,
       data
     });
+  }
+
+  private sendMouseInteraction(
+    entityId: number,
+    state: MouseButtonState,
+    activeSlot: number,
+    itemInHandId: string | null
+  ): void {
+    const packet: MouseInteractionPacket = {
+      name: "MouseInteraction",
+      clientTimestamp: BigInt(Date.now()),
+      activeSlot,
+      screenPoint: { x: 0.5, y: 0.5 },
+      mouseButton: { mouseButtonType: "Right", state, clicks: 1 },
+      worldInteraction: {
+        entityId,
+        blockPosition: null,
+        blockRotation: null
+      },
+      itemInHandId,
+      mouseMotion: null
+    };
+    this.sendPacket(packet);
+  }
+
+  private createSecondaryEntityInteractionPacket(
+    entityId: number,
+    targetEntityUuid: string,
+    hitLocation: Position | null
+  ): SyncInteractionChainsPacket {
+    const activeHotbarSlot = this.world.activeSlots.hotbar;
+    const activeUtilitySlot = this.world.activeSlots.utility;
+    const activeToolsSlot = this.world.activeSlots.tools;
+    const itemInHandId = this.getInventorySectionItemId(this.world.inventory.hotbar, activeHotbarSlot);
+    const utilityItemId = this.getInventorySectionItemId(this.world.inventory.utility, activeUtilitySlot);
+    const toolsItemId = this.getInventorySectionItemId(this.world.inventory.tools, activeToolsSlot);
+    const chainId = this.nextInteractionChainId;
+    this.nextInteractionChainId += 1;
+    return {
+      name: "SyncInteractionChains",
+      updates: [
+        {
+          activeHotbarSlot,
+          activeUtilitySlot,
+          activeToolsSlot,
+          itemInHandId,
+          utilityItemId,
+          toolsItemId,
+          initial: true,
+          desync: false,
+          overrideRootInteraction: -2147483648,
+          interactionType: "Secondary",
+          equipSlot: activeHotbarSlot,
+          chainId,
+          forkedId: null,
+          data: {
+            entityId,
+            proxyId: targetEntityUuid,
+            hitLocation: hitLocation ? { x: hitLocation.x, y: hitLocation.y, z: hitLocation.z } : null,
+            hitDetail: null,
+            blockPosition: null,
+            targetSlot: -2147483648,
+            hitNormal: null
+          },
+          state: "NotFinished",
+          newForks: null,
+          operationBaseIndex: 0,
+          interactionData: null
+        }
+      ]
+    };
+  }
+
+  private getInventorySectionItemId(section: InventorySection | null, slot: number): string | null {
+    if (slot < 0 || !section?.items) {
+      return null;
+    }
+    return section.items[slot]?.itemId ?? null;
   }
 
   snapshotPage(): ReturnType<typeof snapshotCustomPage> | null {
@@ -985,6 +1139,10 @@ export class HytaleBot extends EventEmitter {
 
   getServerMessages(): readonly string[] {
     return [...this.serverMessages];
+  }
+
+  isConnected(): boolean {
+    return this.connected;
   }
 
   async waitForReady(timeoutMs = 15_000): Promise<void> {
@@ -1036,6 +1194,9 @@ export class HytaleBot extends EventEmitter {
         return;
       case "SetClientId":
         this.handleSetClientId(packet as SetClientIdPacket);
+        return;
+      case "SetActiveSlot":
+        this.handleSetActiveSlot(packet as SetActiveSlotPacket);
         return;
       case "JoinWorld":
         this.handleJoinWorld(packet as JoinWorldPacket);
@@ -1145,6 +1306,11 @@ export class HytaleBot extends EventEmitter {
 
   private handleWorldSettings(packet: WorldSettingsPacket): void {
     this.world.worldSettings = packet;
+    if (this.setupHandshakeSent) {
+      this.emit("worldSettings");
+      return;
+    }
+    this.setupHandshakeSent = true;
     const requestAssets: RequestAssetsPacket = { name: "RequestAssets", assets: [] };
     const viewRadius: ViewRadiusPacket = { name: "ViewRadius", value: 6 };
     this.world.viewRadius = viewRadius.value;
@@ -1178,7 +1344,6 @@ export class HytaleBot extends EventEmitter {
         readyForChunks: true,
         readyForGameplay: true
       });
-      this.startHeartbeat();
     }
     this.emit("worldJoin", packet);
   }
@@ -1195,8 +1360,6 @@ export class HytaleBot extends EventEmitter {
       readyForGameplay: true
     });
     this.sendPacket({ name: "LoadHotbar", mode: 0 });
-    this.sendPacket(this.createMovementPacket());
-    this.startHeartbeat();
   }
 
   private handleServerDisconnect(packet: DecodedPacket): void {
@@ -1214,6 +1377,8 @@ export class HytaleBot extends EventEmitter {
       }
     })();
     const message = reason ? `ServerDisconnect: ${reason}` : `ServerDisconnect: ${packetJson}`;
+    this.connected = false;
+    this.stopHeartbeat();
     this.serverMessages.push(message);
     this.emit("serverMessage", message);
     this.recordError(new Error(message));
@@ -1257,6 +1422,23 @@ export class HytaleBot extends EventEmitter {
     this.emit("clientId", this.clientId);
   }
 
+  private handleSetActiveSlot(packet: SetActiveSlotPacket): void {
+    switch (packet.inventorySectionId) {
+      case -1:
+        this.world.activeSlots.hotbar = packet.activeSlot;
+        break;
+      case -5:
+        this.world.activeSlots.utility = packet.activeSlot;
+        break;
+      case -8:
+        this.world.activeSlots.tools = packet.activeSlot;
+        break;
+      default:
+        break;
+    }
+    this.emit("activeSlot", packet);
+  }
+
   private handlePing(packet: PingPacket): void {
     const stdin = this.bridgeProcess?.stdin;
     if (!this.connected || !stdin || stdin.destroyed || stdin.writableEnded || !stdin.writable) {
@@ -1274,33 +1456,43 @@ export class HytaleBot extends EventEmitter {
   }
 
   private handleTeleport(packet: ClientTeleportPacket): void {
-    if (packet.modelTransform?.position) {
-      this.currentPosition = packet.modelTransform.position;
+    const transform = packet.modelTransform ?? null;
+    if (transform?.position) {
+      this.currentPosition = transform.position;
     }
-    if (packet.modelTransform?.bodyOrientation) {
-      this.currentBodyOrientation = packet.modelTransform.bodyOrientation;
+    if (transform?.bodyOrientation) {
+      this.currentBodyOrientation = transform.bodyOrientation;
     }
-    if (packet.modelTransform?.lookOrientation) {
-      this.currentLookOrientation = packet.modelTransform.lookOrientation;
+    if (transform?.lookOrientation) {
+      this.currentLookOrientation = transform.lookOrientation;
     }
-    if (this.clientId != null && packet.modelTransform) {
+    if (this.clientId != null && transform) {
       const entity = this.getOrCreateEntity(this.clientId);
-      if (packet.modelTransform.position) {
-        entity.position = packet.modelTransform.position;
+      if (transform.position) {
+        entity.position = transform.position;
       }
-      if (packet.modelTransform.bodyOrientation) {
-        entity.bodyOrientation = packet.modelTransform.bodyOrientation;
+      if (transform.bodyOrientation) {
+        entity.bodyOrientation = transform.bodyOrientation;
       }
-      if (packet.modelTransform.lookOrientation) {
-        entity.lookOrientation = packet.modelTransform.lookOrientation;
+      if (transform.lookOrientation) {
+        entity.lookOrientation = transform.lookOrientation;
       }
+    }
+    const acknowledgedPosition = transform?.position ?? this.currentPosition ?? this.getSelfEntity()?.position ?? null;
+    if (!acknowledgedPosition) {
+      this.recordError(new Error(`ClientTeleport ${packet.teleportId} skipped because no acknowledgement position is available`));
+      this.emit("teleport", packet);
+      return;
     }
     this.sendPacket(
       this.createMovementPacket({
+        movementStates: null,
+        absolutePosition: acknowledgedPosition,
+        bodyOrientation: null,
+        lookOrientation: null,
         teleportAck: { teleportId: packet.teleportId }
       })
     );
-    this.startHeartbeat();
     this.emit("teleport", packet);
   }
 
@@ -1331,13 +1523,6 @@ export class HytaleBot extends EventEmitter {
         if (!this.worldActive) {
           this.worldActive = true;
           this.emit("worldActivity", packet.name);
-        }
-        if (
-          packet.name === "ClientTeleport"
-          || packet.name === "EntityUpdates"
-          || packet.name === "SetGameMode"
-        ) {
-          this.startHeartbeat();
         }
         return;
       default:
@@ -1712,6 +1897,7 @@ export class HytaleBot extends EventEmitter {
       movementStates,
       health: this.getHealth(),
       inventory: this.cloneInventoryState(),
+      activeSlots: { ...this.world.activeSlots },
       statValues: this.getStatValueSnapshots(),
       entityCount: this.world.entities.size,
       statTypeNames,
@@ -1861,18 +2047,21 @@ export class HytaleBot extends EventEmitter {
   }
 
   private createMovementPacket(update: Partial<ClientMovementPacket> = {}): ClientMovementPacket {
+    const hasField = (key: keyof ClientMovementPacket) => Object.prototype.hasOwnProperty.call(update, key);
     return {
       name: "ClientMovement",
-      movementStates: update.movementStates ?? createDefaultMovementStates({ idle: true, onGround: true }),
-      relativePosition: update.relativePosition ?? null,
-      absolutePosition: update.absolutePosition ?? this.currentPosition,
-      bodyOrientation: update.bodyOrientation ?? this.currentBodyOrientation,
-      lookOrientation: update.lookOrientation ?? this.currentLookOrientation,
-      teleportAck: update.teleportAck ?? null,
-      wishMovement: update.wishMovement ?? null,
-      velocity: update.velocity ?? null,
-      mountedTo: update.mountedTo ?? 0,
-      riderMovementStates: update.riderMovementStates ?? null
+      movementStates: hasField("movementStates")
+        ? update.movementStates ?? null
+        : createDefaultMovementStates({ idle: true, onGround: true }),
+      relativePosition: hasField("relativePosition") ? update.relativePosition ?? null : null,
+      absolutePosition: hasField("absolutePosition") ? update.absolutePosition ?? null : this.currentPosition,
+      bodyOrientation: hasField("bodyOrientation") ? update.bodyOrientation ?? null : this.currentBodyOrientation,
+      lookOrientation: hasField("lookOrientation") ? update.lookOrientation ?? null : this.currentLookOrientation,
+      teleportAck: hasField("teleportAck") ? update.teleportAck ?? null : null,
+      wishMovement: hasField("wishMovement") ? update.wishMovement ?? null : null,
+      velocity: hasField("velocity") ? update.velocity ?? null : null,
+      mountedTo: hasField("mountedTo") ? update.mountedTo ?? 0 : 0,
+      riderMovementStates: hasField("riderMovementStates") ? update.riderMovementStates ?? null : null
     };
   }
 

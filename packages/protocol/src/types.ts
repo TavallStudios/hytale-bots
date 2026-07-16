@@ -10,8 +10,12 @@ import type {
   EntityPart,
   EntityStatOp,
   EntityStatResetBehavior,
+  InteractionState,
+  InteractionType,
   MaybeBool,
   ModifierTarget,
+  MouseButtonState,
+  MouseButtonType,
   PageType,
   PongType,
   SortType,
@@ -63,6 +67,23 @@ export interface Vector3d {
 }
 
 export interface Vector3f {
+  readonly x: number;
+  readonly y: number;
+  readonly z: number;
+}
+
+export interface Vector2f {
+  readonly x: number;
+  readonly y: number;
+}
+
+export interface BlockPosition {
+  readonly x: number;
+  readonly y: number;
+  readonly z: number;
+}
+
+export interface BlockRotation {
   readonly x: number;
   readonly y: number;
   readonly z: number;
@@ -331,6 +352,12 @@ export interface SetClientIdPacket {
   readonly clientId: number;
 }
 
+export interface SetActiveSlotPacket {
+  readonly name: "SetActiveSlot";
+  readonly inventorySectionId: number;
+  readonly activeSlot: number;
+}
+
 export interface JoinWorldPacket {
   readonly name: "JoinWorld";
   readonly clearWorld: boolean;
@@ -368,6 +395,65 @@ export interface ClientTeleportPacket {
 export interface ChatMessagePacket {
   readonly name: "ChatMessage";
   readonly message?: string | null;
+}
+
+export interface MouseButtonEvent {
+  readonly mouseButtonType: MouseButtonType;
+  readonly state: MouseButtonState;
+  readonly clicks: number;
+}
+
+export interface WorldInteraction {
+  readonly entityId: number;
+  readonly blockPosition?: BlockPosition | null;
+  readonly blockRotation?: BlockRotation | null;
+}
+
+export interface MouseInteractionPacket {
+  readonly name: "MouseInteraction";
+  readonly clientTimestamp: bigint;
+  readonly activeSlot: number;
+  readonly screenPoint?: Vector2f | null;
+  readonly mouseButton?: MouseButtonEvent | null;
+  readonly worldInteraction?: WorldInteraction | null;
+  readonly itemInHandId?: string | null;
+  readonly mouseMotion?: null;
+}
+
+export interface InteractionChainData {
+  readonly entityId: number;
+  readonly proxyId: string;
+  readonly hitLocation?: Vector3f | null;
+  readonly hitDetail?: string | null;
+  readonly blockPosition?: BlockPosition | null;
+  readonly targetSlot: number;
+  readonly hitNormal?: Vector3f | null;
+}
+
+export interface SyncInteractionChain {
+  readonly activeHotbarSlot: number;
+  readonly activeUtilitySlot: number;
+  readonly activeToolsSlot: number;
+  readonly itemInHandId?: string | null;
+  readonly utilityItemId?: string | null;
+  readonly toolsItemId?: string | null;
+  readonly initial: boolean;
+  readonly desync: boolean;
+  readonly overrideRootInteraction: number;
+  readonly interactionType: InteractionType;
+  readonly equipSlot: number;
+  readonly chainId: number;
+  readonly forkedId?: null;
+  readonly data?: InteractionChainData | null;
+  readonly state: InteractionState;
+  readonly newForks?: readonly SyncInteractionChain[] | null;
+  readonly operationBaseIndex: number;
+  readonly interactionData?: null;
+}
+
+export interface SyncInteractionChainsPacket {
+  readonly name: "SyncInteractionChains";
+  readonly updates: readonly SyncInteractionChain[];
 }
 
 export interface SetPagePacket {
@@ -448,11 +534,14 @@ export type StructuredPacket =
   | ViewRadiusPacket
   | PlayerOptionsPacket
   | SetClientIdPacket
+  | SetActiveSlotPacket
   | JoinWorldPacket
   | ClientReadyPacket
   | ClientMovementPacket
   | ClientTeleportPacket
   | ChatMessagePacket
+  | MouseInteractionPacket
+  | SyncInteractionChainsPacket
   | SetPagePacket
   | CustomPagePacket
   | CustomPageEventPacket

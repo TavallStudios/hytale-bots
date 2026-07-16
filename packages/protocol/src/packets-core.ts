@@ -1,5 +1,5 @@
-import { BufferWriter, readBooleanByte, readFixedAsciiString, readInt16LE, readInt32LE, readUInt8, readUuid, readVarInt, readVarString, writeFixedAsciiString, writeUuid, writeVarInt, writeVarString } from "./binary.js";
-import { readChatType, readClientType, readDisconnectType, readPageType, readPongType, writeChatType, writeClientType, writeDisconnectType, writePageType, writePongType } from "./enums.js";
+import { BufferWriter, readBigInt64LE, readBooleanByte, readFixedAsciiString, readFloatLE, readInt16LE, readInt32LE, readUInt8, readUuid, readVarInt, readVarString, writeFixedAsciiString, writeUuid, writeVarInt, writeVarString } from "./binary.js";
+import { readChatType, readClientType, readDisconnectType, readInteractionState, readInteractionType, readMouseButtonState, readMouseButtonType, readPageType, readPongType, writeChatType, writeClientType, writeDisconnectType, writeInteractionState, writeInteractionType, writeMouseButtonState, writeMouseButtonType, writePageType, writePongType } from "./enums.js";
 import { ProtocolError } from "./errors.js";
 import { formattedMessageToPlainText, readFormattedMessage, writeFormattedMessage } from "./model/formatted.js";
 import { decodeCustomPageEventPacket, decodeCustomPagePacket, encodeCustomPageEventPacket, encodeCustomPagePacket, snapshotCustomPage } from "./model/ui.js";
@@ -38,6 +38,10 @@ import type {
   CustomPagePacket,
   DisconnectPacket,
   JoinWorldPacket,
+  MouseInteractionPacket,
+  SyncInteractionChain,
+  SyncInteractionChainsPacket,
+  WorldInteraction,
   PingPacket,
   PlayerOptionsPacket,
   PongPacket,
@@ -45,6 +49,7 @@ import type {
   LoadHotbarPacket,
   ServerAuthTokenPacket,
   ServerMessagePacket,
+  SetActiveSlotPacket,
   SetClientIdPacket,
   SetPagePacket,
   ViewRadiusPacket,
@@ -409,6 +414,19 @@ export function encodeSetClientIdPacket(packet: SetClientIdPacket): Buffer {
   return writer.toBuffer();
 }
 
+export const decodeSetActiveSlotPacket = (buffer: Buffer): SetActiveSlotPacket => ({
+  name: "SetActiveSlot",
+  inventorySectionId: readInt32LE(buffer, 0),
+  activeSlot: readInt32LE(buffer, 4)
+});
+
+export function encodeSetActiveSlotPacket(packet: SetActiveSlotPacket): Buffer {
+  const writer = new BufferWriter(8);
+  writer.writeInt32LE(packet.inventorySectionId);
+  writer.writeInt32LE(packet.activeSlot);
+  return writer.toBuffer();
+}
+
 export const decodeJoinWorldPacket = (buffer: Buffer): JoinWorldPacket => ({
   name: "JoinWorld",
   clearWorld: readBooleanByte(buffer, 0),
@@ -511,6 +529,308 @@ export function encodeChatMessagePacket(packet: ChatMessagePacket): Buffer {
     writeVarString(writer, packet.message, 4_096_000);
   }
   return writer.toBuffer();
+}
+
+export function decodeMouseInteractionPacket(buffer: Buffer): MouseInteractionPacket {
+  const nullBits = readUInt8(buffer, 0);
+  const variableBase = 52;
+  return {
+    name: "MouseInteraction",
+    clientTimestamp: readBigInt64LE(buffer, 1),
+    activeSlot: readInt32LE(buffer, 9),
+    screenPoint: (nullBits & 1) !== 0 ? { x: readFloatLE(buffer, 13), y: readFloatLE(buffer, 17) } : null,
+    mouseButton: (nullBits & 2) !== 0
+      ? {
+          mouseButtonType: readMouseButtonType(readUInt8(buffer, 21)),
+          state: readMouseButtonState(readUInt8(buffer, 22)),
+          clicks: readUInt8(buffer, 23)
+        }
+      : null,
+    worldInteraction: (nullBits & 4) !== 0 ? readWorldInteraction(buffer, 24) : null,
+    itemInHandId: (nullBits & 8) !== 0 ? readVarString(buffer, variableBase + readInt32LE(buffer, 44), "utf8").value : null,
+    mouseMotion: null
+  };
+}
+
+export function encodeMouseInteractionPacket(packet: MouseInteractionPacket): Buffer {
+  if (packet.mouseMotion != null) {
+    throw new ProtocolError("MouseInteraction mouseMotion encoding is not implemented");
+  }
+  const writer = new BufferWriter(64);
+  const nullBits = (packet.screenPoint != null ? 1 : 0)
+    | (packet.mouseButton != null ? 2 : 0)
+    | (packet.worldInteraction != null ? 4 : 0)
+    | (packet.itemInHandId != null ? 8 : 0);
+  writer.writeUInt8(nullBits);
+  writer.writeBigInt64LE(packet.clientTimestamp);
+  writer.writeInt32LE(packet.activeSlot);
+  writeMouseScreenPoint(writer, packet.screenPoint);
+  writeMouseButtonEvent(writer, packet.mouseButton);
+  writeWorldInteraction(writer, packet.worldInteraction);
+  const itemOffsetSlot = writer.offset;
+  writer.writeInt32LE(-1);
+  writer.writeInt32LE(-1);
+  const variableBase = writer.offset;
+  if (packet.itemInHandId != null) {
+    writer.setInt32LE(itemOffsetSlot, writer.offset - variableBase);
+    writeVarString(writer, packet.itemInHandId, 4_096_000);
+  }
+  return writer.toBuffer();
+}
+
+function readWorldInteraction(buffer: Buffer, offset: number): WorldInteraction {
+  const nullBits = readUInt8(buffer, offset);
+  return {
+    entityId: readInt32LE(buffer, offset + 1),
+    blockPosition: (nullBits & 1) !== 0
+      ? {
+          x: readInt32LE(buffer, offset + 5),
+          y: readInt32LE(buffer, offset + 9),
+          z: readInt32LE(buffer, offset + 13)
+        }
+      : null,
+    blockRotation: (nullBits & 2) !== 0
+      ? {
+          x: readUInt8(buffer, offset + 17),
+          y: readUInt8(buffer, offset + 18),
+          z: readUInt8(buffer, offset + 19)
+        }
+      : null
+  };
+}
+
+function writeMouseScreenPoint(writer: BufferWriter, screenPoint: MouseInteractionPacket["screenPoint"]): void {
+  if (screenPoint == null) {
+    writer.writeZero(8);
+    return;
+  }
+  writer.writeFloatLE(screenPoint.x);
+  writer.writeFloatLE(screenPoint.y);
+}
+
+function writeMouseButtonEvent(writer: BufferWriter, mouseButton: MouseInteractionPacket["mouseButton"]): void {
+  if (mouseButton == null) {
+    writer.writeZero(3);
+    return;
+  }
+  writer.writeUInt8(writeMouseButtonType(mouseButton.mouseButtonType));
+  writer.writeUInt8(writeMouseButtonState(mouseButton.state));
+  writer.writeUInt8(mouseButton.clicks);
+}
+
+function writeWorldInteraction(writer: BufferWriter, worldInteraction: MouseInteractionPacket["worldInteraction"]): void {
+  if (worldInteraction == null) {
+    writer.writeZero(20);
+    return;
+  }
+  const nullBits = (worldInteraction.blockPosition != null ? 1 : 0)
+    | (worldInteraction.blockRotation != null ? 2 : 0);
+  writer.writeUInt8(nullBits);
+  writer.writeInt32LE(worldInteraction.entityId);
+  if (worldInteraction.blockPosition != null) {
+    writer.writeInt32LE(worldInteraction.blockPosition.x);
+    writer.writeInt32LE(worldInteraction.blockPosition.y);
+    writer.writeInt32LE(worldInteraction.blockPosition.z);
+  } else {
+    writer.writeZero(12);
+  }
+  if (worldInteraction.blockRotation != null) {
+    writer.writeUInt8(worldInteraction.blockRotation.x);
+    writer.writeUInt8(worldInteraction.blockRotation.y);
+    writer.writeUInt8(worldInteraction.blockRotation.z);
+  } else {
+    writer.writeZero(3);
+  }
+}
+
+export function decodeSyncInteractionChainsPacket(buffer: Buffer): SyncInteractionChainsPacket {
+  const count = readVarInt(buffer, 0);
+  let cursor = count.bytesRead;
+  const updates: SyncInteractionChain[] = [];
+  for (let index = 0; index < count.value; index += 1) {
+    const chain = readSyncInteractionChain(buffer, cursor);
+    updates.push(chain.value);
+    cursor += chain.bytesRead;
+  }
+  return { name: "SyncInteractionChains", updates };
+}
+
+export function encodeSyncInteractionChainsPacket(packet: SyncInteractionChainsPacket): Buffer {
+  const writer = new BufferWriter(128);
+  writeVarInt(writer, packet.updates.length);
+  for (const chain of packet.updates) {
+    writeSyncInteractionChain(writer, chain);
+  }
+  return writer.toBuffer();
+}
+
+function readSyncInteractionChain(buffer: Buffer, offset: number): { value: SyncInteractionChain; bytesRead: number } {
+  const nullBits = readUInt8(buffer, offset);
+  const variableBase = offset + 61;
+  if ((nullBits & 8) !== 0 || (nullBits & 32) !== 0 || (nullBits & 64) !== 0) {
+    throw new ProtocolError("SyncInteractionChain forked/newFork/interactionData decoding is not implemented");
+  }
+  let maxEnd = 61;
+  const readText = (mask: number, slotOffset: number): string | null => {
+    if ((nullBits & mask) === 0) {
+      return null;
+    }
+    const result = readVarString(buffer, variableBase + readInt32LE(buffer, offset + slotOffset), "utf8");
+    maxEnd = Math.max(maxEnd, 61 + readInt32LE(buffer, offset + slotOffset) + result.bytesRead);
+    return result.value;
+  };
+  const data = (nullBits & 16) !== 0
+    ? readInteractionChainData(buffer, variableBase + readInt32LE(buffer, offset + 49))
+    : null;
+  if (data) {
+    maxEnd = Math.max(maxEnd, 61 + readInt32LE(buffer, offset + 49) + data.bytesRead);
+  }
+  return {
+    value: {
+      activeHotbarSlot: readInt32LE(buffer, offset + 1),
+      activeUtilitySlot: readInt32LE(buffer, offset + 5),
+      activeToolsSlot: readInt32LE(buffer, offset + 9),
+      itemInHandId: readText(1, 33),
+      utilityItemId: readText(2, 37),
+      toolsItemId: readText(4, 41),
+      initial: readBooleanByte(buffer, offset + 13),
+      desync: readBooleanByte(buffer, offset + 14),
+      overrideRootInteraction: readInt32LE(buffer, offset + 15),
+      interactionType: readInteractionType(readUInt8(buffer, offset + 19)),
+      equipSlot: readInt32LE(buffer, offset + 20),
+      chainId: readInt32LE(buffer, offset + 24),
+      forkedId: null,
+      data: data?.value ?? null,
+      state: readInteractionState(readUInt8(buffer, offset + 28)),
+      newForks: null,
+      operationBaseIndex: readInt32LE(buffer, offset + 29),
+      interactionData: null
+    },
+    bytesRead: maxEnd
+  };
+}
+
+function writeSyncInteractionChain(writer: BufferWriter, chain: SyncInteractionChain): void {
+  if (chain.forkedId != null || chain.interactionData != null) {
+    throw new ProtocolError("SyncInteractionChain forkedId and interactionData encoding are not implemented");
+  }
+  const nullBits = (chain.itemInHandId != null ? 1 : 0)
+    | (chain.utilityItemId != null ? 2 : 0)
+    | (chain.toolsItemId != null ? 4 : 0)
+    | (chain.data != null ? 16 : 0)
+    | (chain.newForks != null ? 32 : 0);
+  writer.writeUInt8(nullBits);
+  writer.writeInt32LE(chain.activeHotbarSlot);
+  writer.writeInt32LE(chain.activeUtilitySlot);
+  writer.writeInt32LE(chain.activeToolsSlot);
+  writer.writeUInt8(chain.initial ? 1 : 0);
+  writer.writeUInt8(chain.desync ? 1 : 0);
+  writer.writeInt32LE(chain.overrideRootInteraction);
+  writer.writeUInt8(writeInteractionType(chain.interactionType));
+  writer.writeInt32LE(chain.equipSlot);
+  writer.writeInt32LE(chain.chainId);
+  writer.writeUInt8(writeInteractionState(chain.state));
+  writer.writeInt32LE(chain.operationBaseIndex);
+  const itemOffsetSlot = writer.offset;
+  writer.writeInt32LE(-1);
+  const utilityOffsetSlot = writer.offset;
+  writer.writeInt32LE(-1);
+  const toolsOffsetSlot = writer.offset;
+  writer.writeInt32LE(-1);
+  writer.writeInt32LE(-1);
+  const dataOffsetSlot = writer.offset;
+  writer.writeInt32LE(-1);
+  const newForksOffsetSlot = writer.offset;
+  writer.writeInt32LE(-1);
+  writer.writeInt32LE(-1);
+  const variableBase = writer.offset;
+  if (chain.itemInHandId != null) {
+    writer.setInt32LE(itemOffsetSlot, writer.offset - variableBase);
+    writeVarString(writer, chain.itemInHandId, 4_096_000);
+  }
+  if (chain.utilityItemId != null) {
+    writer.setInt32LE(utilityOffsetSlot, writer.offset - variableBase);
+    writeVarString(writer, chain.utilityItemId, 4_096_000);
+  }
+  if (chain.toolsItemId != null) {
+    writer.setInt32LE(toolsOffsetSlot, writer.offset - variableBase);
+    writeVarString(writer, chain.toolsItemId, 4_096_000);
+  }
+  if (chain.data != null) {
+    writer.setInt32LE(dataOffsetSlot, writer.offset - variableBase);
+    writeInteractionChainData(writer, chain.data);
+  }
+  if (chain.newForks != null) {
+    writer.setInt32LE(newForksOffsetSlot, writer.offset - variableBase);
+    writeVarInt(writer, chain.newForks.length);
+    for (const fork of chain.newForks) {
+      writeSyncInteractionChain(writer, fork);
+    }
+  }
+}
+
+function readInteractionChainData(buffer: Buffer, offset: number): { value: SyncInteractionChain["data"]; bytesRead: number } {
+  const nullBits = readUInt8(buffer, offset);
+  let bytesRead = 61;
+  let hitDetail: string | null = null;
+  if ((nullBits & 8) !== 0) {
+    const detail = readVarString(buffer, offset + 61, "utf8");
+    hitDetail = detail.value;
+    bytesRead += detail.bytesRead;
+  }
+  return {
+    value: {
+      entityId: readInt32LE(buffer, offset + 1),
+      proxyId: readUuid(buffer, offset + 5),
+      hitLocation: (nullBits & 1) !== 0
+        ? { x: readFloatLE(buffer, offset + 21), y: readFloatLE(buffer, offset + 25), z: readFloatLE(buffer, offset + 29) }
+        : null,
+      hitDetail,
+      blockPosition: (nullBits & 2) !== 0
+        ? { x: readInt32LE(buffer, offset + 33), y: readInt32LE(buffer, offset + 37), z: readInt32LE(buffer, offset + 41) }
+        : null,
+      targetSlot: readInt32LE(buffer, offset + 45),
+      hitNormal: (nullBits & 4) !== 0
+        ? { x: readFloatLE(buffer, offset + 49), y: readFloatLE(buffer, offset + 53), z: readFloatLE(buffer, offset + 57) }
+        : null
+    },
+    bytesRead
+  };
+}
+
+function writeInteractionChainData(writer: BufferWriter, data: NonNullable<SyncInteractionChain["data"]>): void {
+  const nullBits = (data.hitLocation != null ? 1 : 0)
+    | (data.blockPosition != null ? 2 : 0)
+    | (data.hitNormal != null ? 4 : 0)
+    | (data.hitDetail != null ? 8 : 0);
+  writer.writeUInt8(nullBits);
+  writer.writeInt32LE(data.entityId);
+  writeUuid(writer, data.proxyId);
+  if (data.hitLocation != null) {
+    writer.writeFloatLE(data.hitLocation.x);
+    writer.writeFloatLE(data.hitLocation.y);
+    writer.writeFloatLE(data.hitLocation.z);
+  } else {
+    writer.writeZero(12);
+  }
+  if (data.blockPosition != null) {
+    writer.writeInt32LE(data.blockPosition.x);
+    writer.writeInt32LE(data.blockPosition.y);
+    writer.writeInt32LE(data.blockPosition.z);
+  } else {
+    writer.writeZero(12);
+  }
+  writer.writeInt32LE(data.targetSlot);
+  if (data.hitNormal != null) {
+    writer.writeFloatLE(data.hitNormal.x);
+    writer.writeFloatLE(data.hitNormal.y);
+    writer.writeFloatLE(data.hitNormal.z);
+  } else {
+    writer.writeZero(12);
+  }
+  if (data.hitDetail != null) {
+    writeVarString(writer, data.hitDetail, 4_096_000);
+  }
 }
 
 export const decodeSetPagePacket = (buffer: Buffer): SetPagePacket => ({

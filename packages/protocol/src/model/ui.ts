@@ -203,6 +203,10 @@ export function encodeCustomPageEventPacket(packet: CustomPageEventPacket): Buff
   return writer.toBuffer();
 }
 
+function normalizeCustomUiSelector(selector: string): string {
+  return selector.replace(/#HYUUID([A-Za-z_][A-Za-z0-9_]*?)(\d+)(?=[\s.#:[>]|$)/g, "#$1");
+}
+
 export function snapshotCustomPage(page: CustomPagePacket): {
   readonly key: string | null;
   readonly isInitial: boolean;
@@ -212,8 +216,12 @@ export function snapshotCustomPage(page: CustomPagePacket): {
   readonly eventBindings: readonly CustomUIEventBinding[];
   readonly selectors: readonly string[];
 } {
-  const commands = [...(page.commands ?? [])];
-  const eventBindings = [...(page.eventBindings ?? [])];
+  const commands = [...(page.commands ?? [])].map((command) => (
+    command.selector ? { ...command, selector: normalizeCustomUiSelector(command.selector) } : command
+  ));
+  const eventBindings = [...(page.eventBindings ?? [])].map((binding) => (
+    binding.selector ? { ...binding, selector: normalizeCustomUiSelector(binding.selector) } : binding
+  ));
   const selectors = Array.from(
     new Set(
       [...commands.map((command) => command.selector), ...eventBindings.map((binding) => binding.selector)]

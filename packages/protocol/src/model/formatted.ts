@@ -57,8 +57,8 @@ export function writeParamValue(writer: BufferWriter, value: ParamValue): void {
 
 export function readFormattedMessage(buffer: Buffer, offset: number): ReadResult<FormattedMessage> {
   const nullBits = readUInt8(buffer, offset);
-  const variableBase = offset + 34;
-  let maxEnd = 34;
+  const variableBase = offset + 38;
+  let maxEnd = 38;
   const message: FormattedMessage = {
     bold: readMaybeBool(readUInt8(buffer, offset + 1)),
     italic: readMaybeBool(readUInt8(buffer, offset + 2)),
@@ -70,13 +70,13 @@ export function readFormattedMessage(buffer: Buffer, offset: number): ReadResult
   if ((nullBits & 1) !== 0) {
     const fieldOffset = readInt32LE(buffer, offset + 6);
     const value = readVarString(buffer, variableBase + fieldOffset, "utf8");
-    maxEnd = Math.max(maxEnd, 34 + fieldOffset + value.bytesRead);
+    maxEnd = Math.max(maxEnd, 38 + fieldOffset + value.bytesRead);
     (message as { rawText?: string }).rawText = value.value;
   }
   if ((nullBits & 2) !== 0) {
     const fieldOffset = readInt32LE(buffer, offset + 10);
     const value = readVarString(buffer, variableBase + fieldOffset, "utf8");
-    maxEnd = Math.max(maxEnd, 34 + fieldOffset + value.bytesRead);
+    maxEnd = Math.max(maxEnd, 38 + fieldOffset + value.bytesRead);
     (message as { messageId?: string }).messageId = value.value;
   }
   if ((nullBits & 4) !== 0) {
@@ -125,13 +125,13 @@ export function readFormattedMessage(buffer: Buffer, offset: number): ReadResult
   if ((nullBits & 32) !== 0) {
     const fieldOffset = readInt32LE(buffer, offset + 26);
     const value = readVarString(buffer, variableBase + fieldOffset, "utf8");
-    maxEnd = Math.max(maxEnd, 34 + fieldOffset + value.bytesRead);
+    maxEnd = Math.max(maxEnd, 38 + fieldOffset + value.bytesRead);
     (message as { color?: string }).color = value.value;
   }
   if ((nullBits & 64) !== 0) {
     const fieldOffset = readInt32LE(buffer, offset + 30);
     const value = readVarString(buffer, variableBase + fieldOffset, "utf8");
-    maxEnd = Math.max(maxEnd, 34 + fieldOffset + value.bytesRead);
+    maxEnd = Math.max(maxEnd, 38 + fieldOffset + value.bytesRead);
     (message as { link?: string }).link = value.value;
   }
   return { value: message, bytesRead: maxEnd };
@@ -167,6 +167,7 @@ export function writeFormattedMessage(writer: BufferWriter, value: FormattedMess
   writer.writeInt32LE(0);
   const linkOffsetSlot = writer.offset;
   writer.writeInt32LE(0);
+  writer.writeInt32LE(-1);
   const variableBase = writer.offset;
 
   if (value.rawText != null) {
